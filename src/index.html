@@ -719,7 +719,9 @@
 		else {
 			$('#default-content').show();
 		}
-
+	var shownTabs = $('li[role="presentation"]').children(":visible");
+		if(shownTabs.length>0)
+		    shownTabs[0].click();
 	});
 </script>
 
@@ -767,8 +769,7 @@
         })
 
     } else {
-		var shownTabs = $('li[role="presentation"]').children(":visible");
-		shownTabs[0].click();
+
 	}
 	});
 		$('a[href="#three3d_tab"]').on('shown.bs.tab', function (e) {
