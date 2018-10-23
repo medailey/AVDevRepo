@@ -67,3 +67,7 @@ body {
 	border-bottom-style: inset;
 	border-bottom-width: 7px;
 }
+.nav-tabs>li a {
+	font-weight:bold;
+	color:black;
+}
