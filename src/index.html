@@ -74,15 +74,16 @@
 
 
 
-                        <ul class="nav nav-tabs" role="tablist" id="the_tabs">
-							<li role="presentation"><a href="#three3d_tab"   role="tab" data-toggle="tab" style="display:none">Three D Chart</a></li>
-							<li role="presentation"><a href="#grouped_tab"      role="tab" data-toggle="tab" style="display:none">Grouped Barchart</a></li>
-							<li role="presentation"><a href="#barchartmap_tab"      role="tab" data-toggle="tab" style="display:none">Mapped Barchart</a></li>
-							<li role="presentation"><a href="#timeuse_tab" role="tab" data-toggle="tab" style="display:none">Timeuse</a></li>
-							<li role="presentation"><a href="#chord_tab"   role="tab" data-toggle="tab" style="display:none">Chord</a></li>
-                            <li role="presentation"><a href="#radar_tab"   role="tab" data-toggle="tab" style="display:none">Radar</a></li>
+		<ul class="nav nav-tabs" role="tablist" id="the_tabs">
+			<li role="presentation"><a href="#three3d_tab"   role="tab" data-toggle="tab" style="display:none">3D Map</a></li>
+			<li role="presentation"><a href="#grouped_tab"      role="tab" data-toggle="tab" style="display:none">BarChart</a></li>
+			<li role="presentation"><a href="#barchartmap_tab"      role="tab" data-toggle="tab" style="display:none">BarChart and Map</a></li>
+			<li role="presentation"><a href="#timeuse_tab" role="tab" data-toggle="tab" style="display:none">TimeUse</a></li>
+			<li role="presentation"><a href="#chord_tab"   role="tab" data-toggle="tab" style="display:none">Chord</a></li>
+			<li role="presentation"><a href="#radar_tab"   role="tab" data-toggle="tab" style="display:none">Radar</a></li>
+			<li role="presentation"><a href="#sunburst_tab"   role="tab" data-toggle="tab" style="display:none">Sunburst</a></li>
 
-						</ul>
+		</ul>
                         <div class="tab-content">
        <div role="tabpanel" class="tab-pane" id="three3d_tab">
 		<div id="three3d" class="row dynamic-content">
@@ -718,8 +719,7 @@
 		else {
 			$('#default-content').show();
 		}
-		var shownTabs = $('li[role="presentation"]').children(":visible");
-		shownTabs[0].click();
+
 	});
 </script>
 
@@ -743,6 +743,7 @@
 		var title = data.Title;
 		var linkURL = data.LinkURL;
 		var navbartitle = data.NavbarTitle;
+		var tabbedCharts = data.TabbedCharts;
 		$("link[rel*='icon']").attr("href", "../data/" + region + "/img/" + icon + "");
 		$("title").text(title);
 		$('#title_id').text(navbartitle);
@@ -754,11 +755,21 @@
 				$('.' + [key]).remove();
 		});
 		var ids =
-			{ "3DMap": "three3d", "BarMap": "mode-share-by-county", "GrpBar": "grouped-barchart-div", "TimeUse": "timeuse", "Radar": "radar", "Sunburst": "sunburst" };
+			{ "3DMap": "three3d", "BarMap": "mode-share-by-county", "GrpBar": "grouped-barchart-div", "TimeUse": "timeuse", "Radar": "radar", "Sunburst": "sunburst","Chord":"chord" };
+		var jsFiles =
+			{"3DMap": "three3d", "BarMap": "barchart_and_map", "GrpBar": "grouped_barchart_data", "TimeUse": "timeuse", "Radar": "radar", "Sunburst": "sunburst","Chord":"chord"	};
+	if(tabbedCharts == undefined || tabbedCharts==false) {
+	    $('#the_tabs').hide();
+        $.each(data.visualizations, function (key, value) {
+            $('#' + ids[key]).appendTo($("#main_div"));
+            $('#'+ids[key]).prepend("<hr>");
+            $.getScript(jsFiles[key]+".js");
+        })
 
-		$.each(data.visualizations, function (key, value) {
-			//$('#' + ids[key]).appendTo($("#main_div"));
-		})
+    } else {
+		var shownTabs = $('li[role="presentation"]').children(":visible");
+		shownTabs[0].click();
+	}
 	});
 		$('a[href="#three3d_tab"]').on('shown.bs.tab', function (e) {
 		    if(loadedScripts["three3d"] ==false){
