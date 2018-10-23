@@ -6,6 +6,7 @@ body {
 	display:none;
 }
 
+
 .right-border {
 	border-right: 1px dashed #333;
 }
@@ -55,4 +56,14 @@ body {
 .ui-widget-content .ui-state-disabled,
 .ui-widget-header .ui-state-disabled {
 	opacity: 1;
+}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+	color: white;
+	cursor: default;
+	background-color: #222222;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+	border-bottom-color: #E09D15;
+	border-bottom-style: inset;
+	border-bottom-width: 7px;
 }
