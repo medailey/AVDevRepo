@@ -20,25 +20,29 @@
                        dataLocation = v.datalocation;
 
 
-                       if (!defaultSet) {
-                           $.getJSON(dataLocation + "region.json"+"?jsoncallback=?", function (reg) {
-                               regiontitle = reg.FrontPageTitle;
 
-                               setdefault = true;
-                               var icon = reg.Icon;
-                               var logo = reg.Logo;
-                               var title = reg.Title;
-                               var linkURL = reg.LinkURL;
-                               var navbartitle = reg.NavbarTitle;
-                               $("link[rel*='icon']").attr("href", dataLocation + "/img/" + icon + "");
-                               $("title").text(title);
-                               $('#title_id').text(navbartitle);
-                               $('#navbarlink').attr("href", linkURL);
-                               $('#logo_id').attr("src", dataLocation + "/img/" + logo + "");
+                           $.ajax({
+                               method: 'GET',
+                               url: dataLocation + "region.json",
+                               dataType: 'json',
+                               success: function(reg){
+                                regiontitle = reg.FrontPageTitle;
+                            if (!defaultSet) {
+                                setdefault = true;
+                                var icon = reg.Icon;
+                                var logo = reg.Logo;
+                                var title = reg.Title;
+                                var linkURL = reg.LinkURL;
+                                var navbartitle = reg.NavbarTitle;
+                                $("link[rel*='icon']").attr("href", dataLocation + "/img/" + icon + "");
+                                $("title").text(title);
+                                $('#title_id').text(navbartitle);
+                                $('#navbarlink').attr("href", linkURL);
+                                $('#logo_id').attr("src", dataLocation + "/img/" + logo + "");
 
-                               defaultSet = true;
+                                defaultSet = true;
 
-
+                            }
                                $('#' + k + '_id').append("<h4>" + regiontitle + "<img style='max-height: 25px;margin-left:2%;'src='" + dataLocation + "/img/" + reg.FrontPageGraphic + "" + "'/>" + "</h4>");
 
                                $('#' + k + '_id').append("<ul id='" + k + "_scenarios' class='scenarios' style='margin-bottom: 25px;'> </ul>");
@@ -54,13 +58,29 @@
                                });
 
 
+                           }
                            });
-                       }
+
+
                    });
                }
            });
         });
-
+var createCORSRequest = function(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // Most browsers.
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    // IE8 & IE9
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // CORS not supported.
+    xhr = null;
+  }
+  return xhr;
+};
 	</script>
 </head>
 
