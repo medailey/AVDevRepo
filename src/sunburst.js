@@ -16,7 +16,7 @@ var sunburst = (function () {
 	var negativePrefix = "- ";
 	var originalNodeData;
 	var radius, x, y, svg, arc;
-	var showChartOnPage = abmviz_utilities.GetURLParameter("visuals").indexOf('s') > -1;
+	var showChartOnPage = true;
 	// Dimensions of legend item: width, height, spacing, radius of rounded rect.
 	var li = {
 		w: legendBoxWidth,
@@ -34,14 +34,16 @@ var sunburst = (function () {
 		if (json === null) {
 			d3.text(url, function (error, data) {
                 "use strict";
-                if (error) {
-                    throw error; //expected data should have columns similar to: MAINGROUP,SUBGROUP,QUANTITY
-                }
+            if (error) {
+               $('#sunburst').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the sunburst data.</span></h3></div>");
+                throw error;
+            }
                 var csv = d3.csv.parseRows(data);
                 var headers = csv[0];
                 var maingroupColumn = headers[0];
                 var subgroupColumn = headers[1];
                 var quantityColumn = headers[2];
+
                 d3.selectAll(".sunburst-maingroup").html(maingroupColumn);
 
                 try {
@@ -50,7 +52,7 @@ var sunburst = (function () {
                     drawLegend(originalNodeData);
                 } catch (err) {
                     if (json === null)
-                       $('#sunburst').hide();
+                       $('#sunburst').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the sunburst data.</span></h3></div>");
                 }
             }); //end d3.text
 		} else {
