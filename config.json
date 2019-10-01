@@ -1,22 +1,22 @@
 {
   "regions":{
     "rsginc":{
-      "datalocation":  "https://github.com/RSGInc/ActivityViz/blob/master/data/washingtondc/"
+      "datalocation":  "https://medailey.github.io/ActivityViz/data/washingtondc/"
     },
     "atlanta":{
-      "default":  false
+       "datalocation":  "https://medailey.github.io/ActivityViz/data/atlanta/"
     },
     "portland":{
-      "default":  false
+       "datalocation":  "https://medailey.github.io/ActivityViz/data/portland/"
     },
     "sandiego":{
-      "default":  false
+       "datalocation":  "https://medailey.github.io/ActivityViz/data/sandiego/"
     },
     "sacramento":{
-      "default":  false
+       "datalocation":  "https://medailey.github.io/ActivityViz/data/sacramento/"
     },
     "nebraska":{
-      "default":  false
+       "datalocation":  "https://medailey.github.io/ActivityViz/data/nebraska/"
     }
 
   }
