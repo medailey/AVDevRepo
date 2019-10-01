@@ -3,6 +3,8 @@
 var barchart_and_map = (function () {
 	"use strict";
 	var naColor = "White";
+	var highlightColor = "Yellow";
+	var focusColor = "Yellow";
 	var bubbleColor = 'rgba(255, 120, 0, 0.5)';
 	var colors = ["red", "red", "red", "red"];
 	//these will be replaced by default palette/ramp colors
@@ -26,6 +28,7 @@ var barchart_and_map = (function () {
 	var countyColumn;
 	var zoneColumn;
 	var modeColumn;
+	var scenarioPolyFile;
 	var url = "../data/" +abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") + "/BarChartAndMapData.csv"
 	var chartSelector = "#mode-share-by-county-chart";
 	var svgChart;
@@ -42,12 +45,15 @@ var barchart_and_map = (function () {
 	var currentCycleModeIndex = 0;
 	var cycleGoing = false;
 	var breakUp;
-	var currentTripMode;
+	var currentTripModeZone;
+	var currentTripModeBubble;
 	var bubblesShowing = false;
+	var zonesShowing = true;
 	var showOutline = false;
 	var maxFeature;
 	var zoneDataLayer;
 	var countyLayer;
+	var focusLayer;
 	var barsWrap;
 	var barsWrapRect;
 	var barsWrapRectHeight;
@@ -69,10 +75,13 @@ var barchart_and_map = (function () {
 	var COUNTY_FILE="";
 	var ZONE_FILE_LOC="";
 	var CENTER_LOC = [];
+	var SCENARIO_FOCUS = false;
 	var ROTATELABEL = 0;
 	var BARSPACING = 0.2;
 	var showCycleTools = true;
-	var showChartOnPage = abmviz_utilities.GetURLParameter("visuals").indexOf('b') > -1;
+	var highlightLayer;
+	var maxLabelLength = 0;
+	var showChartOnPage = true;
 	$("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
 	//start off chain of initialization by reading in the data	
 	function readInDataCallback() {
@@ -105,6 +114,10 @@ var barchart_and_map = (function () {
                         ZONE_FILE_LOC = val;
                     if (key == "CenterMap")
                         CENTER_LOC = val;
+                    if(key=="DefaultFocusColor")
+                        focusColor = val;
+                    if(key=="DefaultHighlightColor")
+                        highlightColor=val;
                     if (key == "GrpMap") {
 
                     $.each(val, function (opt, value) {
@@ -130,6 +143,18 @@ var barchart_and_map = (function () {
                         }
                     })
                 }
+					if(key=="scenarios" && Array.isArray(val)) {
+                        $.each(val,function(k,v){
+                           if(v.name === abmviz_utilities.GetURLParameter("scenario") && v.CenterMap) {
+                               CENTER_LOC = v.CenterMap;
+                               if (v.ScenarioFocus && v.ScenarioFocus.length > 0) {
+                                   SCENARIO_FOCUS = true;
+                                   scenarioPolyFile = v.ScenarioFocus;
+                                    $('#mode-share-by-county-tools').prepend(" Focus Color: <input type='text' id='mode-share-by-county-focus-color' style='display: none;' >  ");
+                               }
+                           }
+                        });
+                    }
                 });
                 callback();
             });
@@ -141,6 +166,12 @@ var barchart_and_map = (function () {
 	function redrawMap() {
 		"use strict";
 		zoneDataLayer.setStyle(styleZoneGeoJSONLayer);
+		if(Object.keys(zonefilters).length > 1) {
+            highlightLayer.setStyle(styleZoneHightlightLayer);
+        }
+		if(scenarioPolyFile != undefined) {
+            focusLayer.setStyle(styleFocusGeoJSONLayer);
+        }
 		if (bubblesShowing) {
 				updateBubbleSize();
 			}
@@ -155,13 +186,18 @@ var barchart_and_map = (function () {
                 zoneFilterData = d3.nest().key(function (d) {
                     return "filters";
                 }).map(zonecsv);
-                $('#mode-share-by-county-checkboxes').append(zonefilterlabel+"<table ><tr>");
+
+                $('#mode-share-by-county-checkboxes').append(zonefilterlabel)
+                $('#mode-share-by-county-checkboxes').append(" <input type='text' id='mode-share-by-county-highlight-color' style='display: none;' > ");
+                 $('#mode-share-by-county-checkboxes').append("<table style='vertical-align: baseline;display:inline;'><tr>");
                 for (var i = 0; i < zoneheaders.length; i++) {
                     if (zoneheaders[i] in zonefilters) {
-                        $('#mode-share-by-county-checkboxes table tr').append('<td style="padding:3px;"><label style=\'font-weight:100;font-size:14px; \'> <input type="checkbox" colname="' + zoneheaders[i] + '" id="' + zoneheaders[i] + '_id" checked>' + zonefilters[zoneheaders[i]] + '</input></label></td>')
+                        $('#mode-share-by-county-checkboxes table tr').append('<td style="padding:3px;vertical-align: baseline"><label style=\'font-weight:100;font-size:14px; \'> <input type="checkbox" colname="' + zoneheaders[i] + '" id="' + zoneheaders[i] + '_id" >' + zonefilters[zoneheaders[i]] + '</input></label></td>')
                     }
                 }
                 $('#mode-share-by-county-checkboxes').append("</tr></table>");
+
+
             });
             callback();
 
@@ -177,13 +213,19 @@ var barchart_and_map = (function () {
 
             d3.csv(url, function (error, data) {
                 "use strict";
-                if (error)
-                    throw error;
-
+            if (error) {
+               $('#mode-share-by-county').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Barchart and Map data.</span></h3></div>");
+                throw error;
+            }
                 //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
                 var headers = d3.keys(data[0]);
                 zoneColumn = headers[0];
                 countyColumn = headers[1];
+                if(countyColumn==undefined)
+				{
+				$('#mode-share-by-county').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Barchart and Map data.</span></h3></div>");
+				return;
+				}
                 modeColumn = headers[2];
                 quantityColumn = headers[3];
                 var rawChartData = new Map([]);
@@ -220,6 +262,7 @@ var barchart_and_map = (function () {
                         if (rawChartData[countyName] == undefined) {
                             rawChartData[countyName] = {};
                             countiesSet.add(countyName);
+                            maxLabelLength = Math.max(countyName.length,maxLabelLength);
                         }
                         if (rawChartData[countyName][modeName] == undefined) {
                             rawChartData[countyName][modeName] = 0;
@@ -279,10 +322,13 @@ var barchart_and_map = (function () {
 	}; //end readInData
 	function setDataSpecificDOM() {
 		d3.selectAll(".mode-share-by-county-area-type").html(countyColumn);
+		d3.selectAll(".mode-share-by-county-trip-mode-zones").html("Zones");
 		d3.selectAll(".mode-share-by-county-trip-mode").html(modeColumn);
+		d3.selectAll(".mode-share-by-county-trip-mode-bubbles").html("Bubbles");
 		d3.selectAll(".mode-share-by-county-trip-mode-example").html(modes[0]);
 		modes.forEach(function (modeName) {
-			$("#mode-share-by-county-current-trip-mode").append("<option>" + modeName + "</option>");
+			$("#mode-share-by-county-current-trip-mode-zones").append("<option>" + modeName + "</option>");
+			$("#mode-share-by-county-current-trip-mode-bubbles").append("<option>" + modeName + "</option>");
 		});
 		// 		chartData.forEach(function (chartObject) {
 		// 			$("#mode-share-by-county-chart-selection").append("<option>" + chartObject.groupLabel + "</option>");
@@ -302,8 +348,9 @@ var barchart_and_map = (function () {
 		//but can also filter out counties at same time
 		//NOTE: ability to enable/disable counties  removed from UI so currently never used.
 		enabledCounties = chartData.filter(function (countyObject) {
-			return countyObject.enabled;
-		})
+			return countyObject.enabled
+		});
+
 		var hierarchicalData = [];
 		modes.forEach(function (modeName, modeIndex) {
 			var subgroups = [];
@@ -359,24 +406,27 @@ var barchart_and_map = (function () {
 		callback();
 	}; //end updateChartNVD3
 	function updateChartMouseoverRect() {
-		var innerContainer = svgChart.select(".nvd3.nv-wrap.nv-multibarHorizontal");
-		var innerContainerNode = innerContainer.node();
-		var tryAgain = true;
-		if (innerContainerNode != undefined) {
-			var bounds = innerContainerNode.getBBox();
-			var width = bounds.width + marginLeft;
-			barsWrapRectHeight = bounds.height;
-			if (barsWrapRectHeight > 0) {
-				console.log("barsWrap setting  width=" + width + ", height=" + barsWrapRectHeight);
-				barsWrap.select(barsWrapRectSelector).attr("width", width).attr("height", 20);
-				tryAgain = false;
-			}
-		}
-		//end if innerContainerNode exists
-		if (tryAgain) {
-			console.log('updateChartMouseoverRect called but innerContainerNode is null so will try again shortly');
-			setTimeout(updateChartMouseoverRect, 500);
-		}
+		var shownTabs = $('li[role="presentation"]').children(":visible");
+		if(shownTabs.length ==0 || ($('li[role="presentation"]').children(":visible").length >1 && $("#thenavbar li.active").text() ==="BarChart and Map"))  {
+            var innerContainer = svgChart.select(".nvd3.nv-wrap.nv-multibarHorizontal");
+            var innerContainerNode = innerContainer.node();
+            var tryAgain = true;
+            if (innerContainerNode != undefined) {
+                var bounds = innerContainerNode.getBBox();
+                var width = bounds.width + marginLeft;
+                barsWrapRectHeight = bounds.height;
+                if (barsWrapRectHeight > 0) {
+                    console.log("barsWrap setting  width=" + width + ", height=" + barsWrapRectHeight);
+                    barsWrap.select(barsWrapRectSelector).attr("width", width).attr("height", 20);
+                    tryAgain = false;
+                }
+            }
+            //end if innerContainerNode exists
+            if (tryAgain) {
+                console.log('updateChartMouseoverRect called but innerContainerNode is null so will try again shortly');
+                setTimeout(updateChartMouseoverRect, 500);
+            }
+        }
 	}
 	//end updateChartMouseoverRect
 	function changeCurrentCounty(newCurrentCounty) {
@@ -384,7 +434,7 @@ var barchart_and_map = (function () {
 			console.log('changing from ' + currentCounty + " to " + newCurrentCounty);
 			currentCounty = newCurrentCounty;
 			var countyLabels = d3.selectAll(".nvd3.nv-multiBarHorizontalChart .nv-x text ");
-			countyLabels.classed("mode-share-by-county-trip-mode-current-county", function (d, i) {
+			countyLabels.classed("mode-share-by-county-trip-mode-current-county-zones", function (d, i) {
 				var setClass = d == currentCounty;
 				return setClass;
 			});
@@ -419,6 +469,7 @@ var barchart_and_map = (function () {
 					//console.log('chartGenerator being called. nvd3Chart set to:' + nvd3Chart);
 
 					nvd3Chart.x(function (d, i) {
+
 						return d.label
 					}).y(function (d) {
 						return d.value
@@ -427,11 +478,12 @@ var barchart_and_map = (function () {
 						//console.log('barColor i=' + i + ' modeColorIndex=' + modeColorIndex + ' mode=' + d.key + ' county=' + d.label + ' count=' + d.value + ' color=' + color);
 						return color;
 					}).duration(250).margin({
-						left: marginLeft,
+						left: Math.max(110,marginLeft+ ( (maxLabelLength-14)*5 )),
 						right: marginRight,
 						top: marginTop,
 						bottom: marginBottom
 					}).id("mode-share-by-county-multiBarHorizontalChart").stacked(true).showControls(false);
+					marginLeft = Math.max(110 + ( (maxLabelLength-14)*5 ),110);
 					nvd3Chart.yAxis.tickFormat(d3.format(',.2f'));
 					nvd3Chart.yAxis.axisLabel(quantityColumn);
 					//this is actually for xAxis since basically a sideways column chart
@@ -450,7 +502,7 @@ var barchart_and_map = (function () {
 					nvd3Chart.legend.dispatch.on('legendDblclick', function (event) {
 						var newTripMode = event.key;
 						console.log('legend legendDblclick on trip mode: ' + newTripMode);
-						$('#mode-share-by-county-current-trip-mode').val(newTripMode);
+						$('#mode-share-by-county-current-trip-mode-zones').val(newTripMode);
 						updateCurrentTripModeOrClassification();
 						redrawMap();
 					});
@@ -479,7 +531,7 @@ var barchart_and_map = (function () {
 		var color = naColor;
         var isZoneVisible = true;
 		if (feature.zoneData != undefined) {
-            var zoneDataFeature = feature.zoneData[currentTripMode];
+            var zoneDataFeature = feature.zoneData[currentTripModeZone];
             //possible that even if data for zone exists, could be missing this particular trip mode
             if (zoneDataFeature != undefined) {
                 var quantity = zoneDataFeature.QUANTITY;
@@ -496,15 +548,7 @@ var barchart_and_map = (function () {
                     color = colors[0];
                 }
             }
-            //end if we have data for this trip mode
-            var checkedfilters = $('#mode-share-by-county-checkboxes input[type=checkbox]:checked');
-            var cnttrue = 0;
-            checkedfilters.each(function () {
-                var filtername = this.attributes["colname"];
-                cnttrue += parseInt(feature.zoneData.FILTERS[filtername.value]);
-                isZoneVisible = cnttrue > 0;
-            });
-        }
+		}
 
 		//end if we have data for this zone
 		//the allowed options are described here: http://leafletjs.com/reference.html#path-options
@@ -519,6 +563,40 @@ var barchart_and_map = (function () {
 		};
 		return (returnStyle);
 	}
+
+	function styleZoneHightlightLayer(feature) {
+        var checkedfilters = $('#mode-share-by-county-checkboxes input[type=checkbox]:checked');
+        var highlightHidden = false;
+        var cnttrue = 0;
+        if (feature.zoneData != undefined) {
+            checkedfilters.each(function () {
+                var filtername = this.attributes["colname"];
+                cnttrue += parseFloat(feature.zoneData.FILTERS[filtername.value]);
+                highlightHidden = cnttrue > 0;
+            });
+        }
+
+        var returnStyle = {
+            //all SVG styles allowed
+            fill: false,
+            fillOpacity: 0.0,
+            stroke: true,
+            weight: 0.5,
+            strokeOpacity: 0.5,
+            color: highlightColor
+        };
+        //console.log(isHighlightedVisible);
+        if (highlightHidden == false || feature.zoneData == undefined) {
+            returnStyle = {
+                color: "none",
+                strokeOpacity: 0.0,
+                stroke:false
+            };
+        }
+        return (returnStyle);
+
+    }
+
 	//end styleZoneGeoJSONLayer function
 	function styleCountyGeoJSONLayer(feature) {
 		var returnStyle = {
@@ -539,7 +617,7 @@ var barchart_and_map = (function () {
 		//var lng=latlngcenter[1];
 		map = L.map("mode-share-by-county-map",{
 			minZoom: 7
-		}).setView(CENTER_LOC, 12);
+		}).setView(CENTER_LOC, 9);
 		//centered at Atlanta
 		map.on('zoomend', function (type, target) {
 			var zoomLevel = map.getZoom();
@@ -572,6 +650,13 @@ var barchart_and_map = (function () {
 				}
 			}
 
+             highlightLayer = L.geoJson(zoneTiles, {
+				updateWhenIdle: true,
+				unloadInvisibleFiles: true,
+				reuseTiles: true,
+				opacity: 0.5,
+				style: styleZoneHightlightLayer
+			});
 
 			circlesLayerGroup = L.layerGroup(circleMarkers);
 			//http://leafletjs.com/reference.html#tilelayer
@@ -582,6 +667,8 @@ var barchart_and_map = (function () {
 				opacity: 1.0,
 				style: styleZoneGeoJSONLayer
 			});
+
+
 			//var stamenTileLayer = new L.StamenTileLayer("toner-lite"); //B&W stylized background map
 			//map.addLayer(stamenTileLayer);
 			var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
@@ -609,12 +696,15 @@ var barchart_and_map = (function () {
 					style: styleCountyGeoJSONLayer,
 					onEachFeature: onEachCounty
 				});
-				var allCountyBounds = countyLayer.getBounds();
+
+					var allCountyBounds = countyLayer.getBounds();
 				console.log(allCountyBounds);
-				map.fitBounds(allCountyBounds);
-				map.setMaxBounds(allCountyBounds);
+				if(!SCENARIO_FOCUS && countyLayer.getBounds().isValid())
+				    map.fitBounds(allCountyBounds);
+
 				zoneDataLayer.addTo(map);
 				countyLayer.addTo(map);
+				highlightLayer.addTo(map);
 			}).success(function () {
 				console.log(COUNTY_FILE+" second success");
 			}).error(function (jqXHR, textStatus, errorThrown) {
@@ -635,9 +725,31 @@ var barchart_and_map = (function () {
 				var layer = e.target;
 				changeCurrentCounty(layer.feature.properties.NAME);
 			}
+			//end if we have data for this trip mode
+
 		});
-		//end geoJson of zone layer
+
+		if(scenarioPolyFile != undefined){
+		    $.getJSON("../data/"+abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") +"/"+scenarioPolyFile, function (scenarioTiles) {
+             "use strict";
+              focusLayer = L.geoJSON(scenarioTiles, {
+                 style: styleFocusGeoJSONLayer
+             } );
+             focusLayer.addTo(map);
+            });
+        }		//end geoJson of zone layer
 	}; //end createMap
+
+
+    function styleFocusGeoJSONLayer(feature){
+        var returnStyle = {
+			//all SVG styles allowed
+			stroke: true,
+			weight: 5,
+			color: focusColor
+		};
+		return (returnStyle);
+    }
 	function updateColors(values, themax) {
 		"use strict";
 		var colorStops = colors[0] + ", ";
@@ -685,8 +797,17 @@ var barchart_and_map = (function () {
             }
 			extNvd3Chart.update();
 		});
+
+		$("#mode-share-by-county-zones").click(function () {
+			updateMapUI();
+		});
 		$("#mode-share-by-county-bubbles").click(function () {
+			updateMapUI();
+		});
+
+		function updateMapUI() {
 			bubblesShowing = $("#mode-share-by-county-bubbles").is(":checked");
+			zonesShowing =  $("#mode-share-by-county-zones").is(":checked");
 			console.log('updateBubbles: bubblesShowing=' + bubblesShowing);
 			console.log('$("#mode-share-by-county-bubble-size").prop("disabled"): ' + $("#mode-share-by-county-bubble-size").prop("disabled"));
 			$("#mode-share-by-county-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
@@ -697,12 +818,16 @@ var barchart_and_map = (function () {
 				updateBubbleColor();
 				updateBubbleSize();
 				circlesLayerGroup.addTo(map);
-				zoneDataLayer.removeFrom(map);
+
 			} else {
 				circlesLayerGroup.removeFrom(map);
-				zoneDataLayer.addTo(map);
 			}
-		});
+			if(zonesShowing){
+				zoneDataLayer.addTo(map);
+			} else {
+				zoneDataLayer.removeFrom(map);
+			}
+		}
 		if(showCycleTools == false) {
 		    $('#mode-share-by-county-slider').hide();
 		    $('#mode-share-by-county-start-cycle-map').hide();
@@ -747,7 +872,7 @@ var barchart_and_map = (function () {
 			updateCurrentTripModeOrClassification();
 			redrawMap();
 			currentCycleModeIndex++;
-			if (currentCycleModeIndex >= $("#mode-share-by-county-current-trip-mode option").size()) {
+			if (currentCycleModeIndex >= $("#mode-share-by-county-current-trip-mode-zones option").size()) {
 				currentCycleModeIndex = 0;
 			}
 			if (cycleGoing) {
@@ -788,10 +913,15 @@ var barchart_and_map = (function () {
 			}
 		});
 		updateColors(handlers, $("#mode-share-by-county-slider").slider("option", "max"));
-		$("#mode-share-by-county-current-trip-mode").change(function () {
+		$("#mode-share-by-county-current-trip-mode-zones").change(function () {
 			updateCurrentTripModeOrClassification();
 			redrawMap();
 		});
+		$("#mode-share-by-county-current-trip-mode-bubbles").change(function () {
+			updateCurrentTripModeOrClassification();
+			redrawMap();
+		});
+
 		$("#mode-share-by-county-classification").change(function () {
 			updateCurrentTripModeOrClassification();
 			redrawMap();
@@ -812,6 +942,42 @@ var barchart_and_map = (function () {
 				naColor = color;
 				redrawMap();
 				updateColors($("#mode-share-by-county-slider").slider("values"));
+			}
+		});
+		$("#mode-share-by-county-highlight-color").spectrum({
+			color: highlightColor,
+			showInput: true,
+			className: "full-spectrum",
+			showInitial: false,
+			showPalette: true,
+			showAlpha: true,
+			showSelectionPalette: true,
+			maxSelectionSize: 10,
+			preferredFormat: "hex",
+			localStorageKey: "spectrum.demo",
+			palette: palette,
+			change: function (color) {
+				highlightColor = color;
+				redrawMap();
+
+			}
+		});
+		$("#mode-share-by-county-focus-color").spectrum({
+			color: focusColor,
+			showInput: true,
+			className: "full-spectrum",
+			showInitial: false,
+			showPalette: true,
+			showAlpha: true,
+			showSelectionPalette: true,
+			maxSelectionSize: 10,
+			preferredFormat: "hex",
+			localStorageKey: "spectrum.demo",
+			palette: palette,
+			change: function (color) {
+				focusColor = color;
+				redrawMap();
+
 			}
 		});
 		$("#mode-share-by-county-bubble-color").spectrum({
@@ -892,19 +1058,21 @@ var barchart_and_map = (function () {
 		var mapRadiusInPixels = mapBounds.width / 2;
 		var maxBubbleRadiusInPixels = mapRadiusInPixels / 50;
 		var maxBubbleSize = bubbleMultiplier * maxBubbleRadiusInPixels;
+		var serie = new geostats(modeData[currentTripModeBubble].serie);
+		maxFeature = serie.max();
 		var scaleSqrt = d3.scale.sqrt().domain([0, maxFeature]).range([0, maxBubbleSize]);
 		circleMarkers.forEach(function (circleMarker) {
 			var zoneData = circleMarker.zoneData;
-			var zoneTripData = zoneData[currentTripMode];
+			var zoneTripData = zoneData[currentTripModeBubble];
 			var sqrtRadius = 0;
 			var checkedfilters = $('#mode-share-by-county-checkboxes input[type=checkbox]:checked');
             var cnttrue = 0;
             var isZoneVisible = true;
-            checkedfilters.each(function () {
+           /* checkedfilters.each(function () {
                 var filtername = this.attributes["colname"];
                 cnttrue += parseInt(zoneData.FILTERS[filtername.value]);
                 isZoneVisible = cnttrue > 0;
-            });
+            });*/
 			if (zoneTripData != undefined && isZoneVisible) {
 				var quantity = zoneTripData.QUANTITY;
 				var sqrtRadius = scaleSqrt(quantity);
@@ -915,10 +1083,12 @@ var barchart_and_map = (function () {
 
 	function updateCurrentTripModeOrClassification() {
 		"use strict";
-		currentTripMode = $('#mode-share-by-county-current-trip-mode').val();
+		currentTripModeBubble = $('#mode-share-by-county-current-trip-mode-bubbles').val();
+		currentTripModeZone = $('#mode-share-by-county-current-trip-mode-zones').val();
 		var startTime = Date.now();
-		console.log('updateCurrentTripModeOrClassification: #current-trip-mode.val()=' + currentTripMode);
-		var serie = new geostats(modeData[currentTripMode].serie);
+		console.log('updateCurrentTripModeOrClassification: #current-trip-mode-zone.val()=' + currentTripModeZone);
+		console.log('updateCurrentTripModeOrClassification: #current-trip-mode-bubble.val()=' + currentTripModeBubble);
+		var serie = new geostats(modeData[currentTripModeZone].serie);
 		maxFeature = serie.max();
 		//handle the different classifications
 		var classification = $("#mode-share-by-county-classification").val();

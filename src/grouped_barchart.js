@@ -40,7 +40,7 @@ function grouped_barchart (id, data,options) {
 	var BARSPACING = showAsGrouped ? options.barSpacing:0.2;
 	var barsWrapRectId = "grouped-barchart-barsWrapRectRSG"
 	var barsWrapRectSelector = "#" + barsWrapRectId;
-	var showChartOnPage = abmviz_utilities.GetURLParameter("visuals").indexOf('g') > -1;
+	var showChartOnPage = true;
 	$("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
 	//start off chain of initialization by reading in the data	
     svgChart = d3.select(id);
@@ -57,8 +57,6 @@ function runAfterChartCreated() {
     }
 
 }
-
-
 	//end setDataSpecificDOM
 	function updateChart(callback) {
 		"use strict";
@@ -240,7 +238,7 @@ runAfterChartCreated();
 	//WARNING -- this canbe called more than once because of PIVOT reload kluge
  //end initializeMuchOfUI
 	//return only the parts that need to be global
-	return {};
+	return { };
 
 }
 

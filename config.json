@@ -1,7 +1,10 @@
 {
   "regions":{
+    "rsginc":{
+      "datalocation":  "https://github.com/RSGInc/ActivityViz/blob/master/data/washingtondc/"
+    },
     "atlanta":{
-      "default":  true
+      "default":  false
     },
     "portland":{
       "default":  false
@@ -12,8 +15,9 @@
     "sacramento":{
       "default":  false
     },
-	"nebraska":{
+    "nebraska":{
       "default":  false
     }
+
   }
 }
