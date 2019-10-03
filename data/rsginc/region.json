@@ -6,29 +6,45 @@
   "Logo":"RSG_400px.jpg",
   "NavbarTitle":"RSG ActivityViz",
   "LinkURL":"https://www.rsginc.com",
-  "TabbedCharts":true,
   "CenterMap": [38.9072, -77.0369],
   "FrontPageTitle": "RSG Demo Data",
   "FrontPageGraphic": "RSG_400px.jpg",
   "scenarios":{
-    "INRIX": "- Washington DC INRIX Processing"
+    "INRIX": {
+      "title":"- Washington DC INRIX Processing",
+      "visualizations": {
+        "GrpBar": [
+          {
+            "name": "BarChart",
+            "file": "BarChartAndMapData.csv",
+            "config": "Default"
+          }
+          ],
+        "RadarCharts": [
+          {
+            "name":"ThisBeMyrRadars",
+            "file": "RadarChartsData.csv",
+            "config": "Default"
+          }
+        ]
+      }
+    }
   },
-  "visualizations":{
-  "3DMap":false,
-  "BarMap":true,
-  "GrpBar":false,
-  "TimeUse":false,
-  "Radar":true,
-  "Sunburst":false,
-  "Chord":true
-},
   "RadarCharts":{
-    "NumberColsRadar":3,
-    "IndependentScale":[""],
-    "ConvertAxesToPercent":true
+    "Default": {
+      "NumberColsRadar": 3,
+      "IndependentScale": [
+        ""
+      ],
+      "ConvertAxesToPercent": true
+    }
   },
   "GrpMap": {
-            "CycleMapTools": false
+    "Default": [
+      {
+        "CycleMapTools": false
+      }
+    ]
   },
   "GroupedCharts":{
     "NumberColsGrouped":1,
