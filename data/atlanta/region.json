@@ -28,6 +28,9 @@
     "IndependentScale":[""],
     "ConvertAxesToPercent":true
   },
+  "GrpMap": {
+    
+  },
   "GroupedCharts":{
     "NumberColsGrouped":1,
     "SwapLegendByDefault":true,
