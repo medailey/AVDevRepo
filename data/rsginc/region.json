@@ -47,12 +47,14 @@
 
   },
   "GroupedCharts":{
-    "NumberColsGrouped":1,
-    "SwapLegendByDefault":true,
-    "ShowAsPercentByDefault":true,
-    "ShowAsVerticalByDefault":false,
-    "StackAllChartsByDefault":false,
-    "ChartWidthOverride": []
+    "Default": {
+      "NumberColsGrouped": 1,
+      "SwapLegendByDefault": true,
+      "ShowAsPercentByDefault": true,
+      "ShowAsVerticalByDefault": false,
+      "StackAllChartsByDefault": false,
+      "ChartWidthOverride": []
+    }
   },
   "ThreeDMap":{
     "ShowPeriodsAsDropdown":false,

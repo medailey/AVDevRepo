@@ -4,7 +4,7 @@
       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/"
     },
     "atlanta":{
-       "datalocation":  "https://medailey.github.io/ActivityViz/data/atlanta/"
+       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/atlanta/"
     },
     "portland":{
        "datalocation":  "https://medailey.github.io/ActivityViz/data/portland/"

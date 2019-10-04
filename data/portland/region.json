@@ -5,8 +5,7 @@
     "Icon": "oregon-metro2.ico", 
     "Logo": "oregon-metro.png", 
     "NavbarTitle": "MCEVIZ", 
-    "LinkURL": "http://www.oregonmetro.gov/", 
-    "TabbedCharts": true, 
+    "LinkURL": "http://www.oregonmetro.gov/",
     "CenterMap": [
         45.512794, 
         -122.679565
@@ -15,43 +14,58 @@
     "DefaultHighlightColor":"red",
     "FrontPageTitle": "Oregon Metro", 
     "FrontPageGraphic": "oregon-metro_black.png", 
-    "scenarios": [
-        {
-            "name": "I205",
-            "label": "- I205",
-            "CenterMap": [ 45.367157, -122.692046],
+    "scenarios": {
+        "I205": {
+            "title": "- I205",
+            "CenterMap": [
+                45.367157,
+                -122.692046
+            ],
             "ScenarioFocus": "I205.json"
-
         },
-        {
-            "name": "DivisionBRT",
-            "label":"- DivisionBRT",
-            "CenterMap":[45.512794,-122.679565],
+        "DivisionBRT": {
+            "title": "- DivisionBRT",
+            "CenterMap": [
+                45.512794,
+                -122.679565
+            ],
             "ScenarioFocus": "DivisionBRT.json"
         },
-        {
-            "name":"Scenarios",
-            "label":"- I205 versus Division BRT",
-            "CenterMap":[45.512794,-122.679565]
+        "Scenarios": {
+            "name": "Scenarios",
+            "title": "- I205 versus Division BRT",
+            "CenterMap": [
+                45.512794,
+                -122.679565
+            ]
         },
-        {
-            "name":"Freight",
-            "label":"- Freight Flows",
-            "CenterMap":[45.512794,-122.679565]
+        "Freight": {
+            "name": "Freight",
+            "title": "- Freight Flows",
+            "CenterMap": [
+                45.512794,
+                -122.679565
+            ]
         },
-        {
-            "name":"Concept-B",
-            "label":"- Concept B",
-            "CenterMap":[45.512794,-122.679565],
+        "Concept-B": {
+            "name": "Concept-B",
+            "title": "- Concept B",
+            "CenterMap": [
+                45.512794,
+                -122.679565
+            ],
             "ScenarioFocus": "concept-b.json"
         },
-        {
-            "name":"Concept-E",
-            "label":"- Concept E",
-            "CenterMap":[45.512794,-122.679565],
+        "Concept-E": {
+            "name": "Concept-E",
+            "title": "- Concept E",
+            "CenterMap": [
+                45.512794,
+                -122.679565
+            ],
             "ScenarioFocus": "concept-e.json"
         }
-        ],
+    },
     "visualizations": {
         "GrpBar": false,
         "BarMap": false,

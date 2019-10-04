@@ -24,12 +24,16 @@
   "Sunburst":true
 },
   "RadarCharts":{
-    "NumberColsRadar":4,
-    "IndependentScale":[""],
-    "ConvertAxesToPercent":true
+    "Default": {
+      "NumberColsRadar": 4,
+      "IndependentScale": [
+        ""
+      ],
+      "ConvertAxesToPercent": true
+    }
   },
   "GrpMap": {
-    
+
   },
   "GroupedCharts":{
     "NumberColsGrouped":1,
