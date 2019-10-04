@@ -40,11 +40,11 @@
     }
   },
   "GrpMap": {
-    "Default": [
+    "Default":
       {
         "CycleMapTools": false
       }
-    ]
+    
   },
   "GroupedCharts":{
     "NumberColsGrouped":1,

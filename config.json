@@ -1,7 +1,7 @@
 {
   "regions":{
     "rsginc":{
-      "datalocation":  "https://medailey.github.io/ActivityViz/data/washingtondc/"
+      "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/gh-pages/data/rsginc/"
     },
     "atlanta":{
        "datalocation":  "https://medailey.github.io/ActivityViz/data/atlanta/"
