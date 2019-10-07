@@ -29,7 +29,11 @@ var barchart_and_map = (function () {
 	var zoneColumn;
 	var modeColumn;
 	var scenarioPolyFile;
-	var url = "../data/" +abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") + "/BarChartAndMapData.csv"
+	var scenario = abmviz_utilities.GetURLParameter("scenario");
+	var region = abmviz_utilities.GetURLParameter("region");
+	 var dataLocation = localStorage.getItem(region);
+	var url = dataLocation+ scenario;// + "/BarChartAndMapData.csv"
+	var fileName = "BarChartAndMapData.csv";
 	var chartSelector = "#mode-share-by-county-chart";
 	var svgChart;
 	var extNvd3Chart;
@@ -82,7 +86,7 @@ var barchart_and_map = (function () {
 	var highlightLayer;
 	var maxLabelLength = 0;
 	var showChartOnPage = true;
-	$("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+	$("#scenario-header").html("Scenario " + scenario);
 	//start off chain of initialization by reading in the data	
 	function readInDataCallback() {
 		createMap(function () {
@@ -106,7 +110,17 @@ var barchart_and_map = (function () {
 
 	function getConfigSettings(callback) {
         if (showChartOnPage) {
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + "region.json", function (data) {
+            $.getJSON(dataLocation + "region.json", function (data) {
+                var configName = "Default";
+                if(data["scenarios"][scenario].visualizations != undefined) {
+                    if (data["scenarios"][scenario].visualizations["GrpBar"][0].file) {
+                        fileName = data["scenarios"][scenario].visualizations["GrpBar"][0].file;
+
+                    }
+                }
+				url+="/"+fileName;
+
+                //GO THROUGH region level configuration settings
                 $.each(data, function (key, val) {
                     if (key == "CountyFile")
                         COUNTY_FILE = val;
@@ -114,51 +128,57 @@ var barchart_and_map = (function () {
                         ZONE_FILE_LOC = val;
                     if (key == "CenterMap")
                         CENTER_LOC = val;
-                    if(key=="DefaultFocusColor")
+                    if (key == "DefaultFocusColor")
                         focusColor = val;
-                    if(key=="DefaultHighlightColor")
-                        highlightColor=val;
-                    if (key == "GrpMap") {
+                    if (key == "DefaultHighlightColor")
+                        highlightColor = val;
 
-                    $.each(val, function (opt, value) {
+                });
+				//go through scenario config level settings
+
+				if(data["scenarios"] != undefined && data["scenarios"][scenario] != undefined) {
+                    if (data["scenarios"][scenario]["CenterMap"] != undefined) {
+                        CENTER_LOC = data["scenarios"][scenario]["CenterMap"];
+                    }
+                    if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
+                        SCENARIO_FOCUS = true;
+                        scenarioPolyFile = v.ScenarioFocus;
+                        $('#mode-share-by-county-tools').prepend(" Focus Color: <input type='text' id='mode-share-by-county-focus-color' style='display: none;' >  ");
+                    }
+                }
+
+
+				var configSettings = data["GrpMap"][configName];
+				if(configSettings != undefined) {
+                    $.each(configSettings, function (opt, value) {
                         if (opt == "ZoneFilterFile") {
                             ZONE_FILTER_LOC = value;
                         }
-                         if (opt =="ZoneFilterLabel") {
-                             zonefilterlabel = value;
-                         }
-                         if (opt == "ZoneFilters") {
-                            $.each(value,function(filtercolumn,filtername){
+                        if (opt == "ZoneFilterLabel") {
+                            zonefilterlabel = value;
+                        }
+                        if (opt == "ZoneFilters") {
+                            $.each(value, function (filtercolumn, filtername) {
                                 zonefilters[filtercolumn] = filtername;
                             })
                         }
-                        if(opt =="RotateLabels") {
-                        	ROTATELABEL = value;
-						}
-						if(opt =="BarSpacing") {
+                        if (opt == "RotateLabels") {
+                            ROTATELABEL = value;
+                        }
+                        if (opt == "BarSpacing") {
                             BARSPACING = value;
                         }
-						if(opt =="CycleMapTools") {
+                        if (opt == "CycleMapTools") {
                             showCycleTools = value;
                         }
-                    })
+                    });
                 }
-					if(key=="scenarios" && Array.isArray(val)) {
-                        $.each(val,function(k,v){
-                           if(v.name === abmviz_utilities.GetURLParameter("scenario") && v.CenterMap) {
-                               CENTER_LOC = v.CenterMap;
-                               if (v.ScenarioFocus && v.ScenarioFocus.length > 0) {
-                                   SCENARIO_FOCUS = true;
-                                   scenarioPolyFile = v.ScenarioFocus;
-                                    $('#mode-share-by-county-tools').prepend(" Focus Color: <input type='text' id='mode-share-by-county-focus-color' style='display: none;' >  ");
-                               }
-                           }
-                        });
-                    }
-                });
-                callback();
-            });
-            ZONE_FILTER_LOC = ZONE_FILTER_LOC;
+            }).complete(function() {
+            	callback();
+            	 ZONE_FILTER_LOC = ZONE_FILTER_LOC;
+			});
+
+
 
         }
     }
@@ -180,7 +200,7 @@ var barchart_and_map = (function () {
 	function readInFilterData(callback) {
         if (Object.keys(zonefilters).length > 1 && ZONE_FILTER_LOC != '') {
             var zonecsv;
-            d3.text("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/"+ZONE_FILTER_LOC, function (error, filterdata) {
+            d3.text(dataLocation + scenario + "/"+ZONE_FILTER_LOC, function (error, filterdata) {
                 zonecsv = d3.csv.parseRows(filterdata).slice(1);
                 zoneheaders = d3.csv.parseRows(filterdata)[0];
                 zoneFilterData = d3.nest().key(function (d) {
@@ -624,7 +644,7 @@ var barchart_and_map = (function () {
 			var zoomScale = map.getZoomScale();
 			console.log('zoomLevel: ', zoomLevel, ' zoomScale: ', zoomScale);
 		});
-		$.getJSON("../data/"+abmviz_utilities.GetURLParameter("region")+"/"+ZONE_FILE_LOC, function (zoneTiles) {
+		$.getJSON(dataLocation+ZONE_FILE_LOC, function (zoneTiles) {
 			"use strict";
 			//there should be at least as many zones as the number we have data for.
 
@@ -678,7 +698,7 @@ var barchart_and_map = (function () {
 				opacity: 1.0
 			});
 			underlyingMapLayer.addTo(map);
-			$.getJSON("../data/"+ abmviz_utilities.GetURLParameter("region") +"/"+COUNTY_FILE, function (countyTiles) {
+			$.getJSON(dataLocation+COUNTY_FILE, function (countyTiles) {
 				"use strict";
 				console.log(COUNTY_FILE+" success");
 				//http://leafletjs.com/reference.html#tilelayer
@@ -730,7 +750,7 @@ var barchart_and_map = (function () {
 		});
 
 		if(scenarioPolyFile != undefined){
-		    $.getJSON("../data/"+abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") +"/"+scenarioPolyFile, function (scenarioTiles) {
+		    $.getJSON(dataLocation+ scenario +"/"+scenarioPolyFile, function (scenarioTiles) {
              "use strict";
               focusLayer = L.geoJSON(scenarioTiles, {
                  style: styleFocusGeoJSONLayer

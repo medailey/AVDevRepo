@@ -1,17 +1,20 @@
 {
-  "Title":"RSG - ActivityViz",
-  "CountyFile":"ZoneShape.json",
-  "ZoneFile":"ZoneShape.json",
-  "Icon":"RSG.ico",
-  "Logo":"RSG_400px.jpg",
-  "NavbarTitle":"RSG ActivityViz",
-  "LinkURL":"https://www.rsginc.com",
-  "CenterMap": [38.9072, -77.0369],
+  "Title": "RSG - ActivityViz",
+  "CountyFile": "ZoneShape.json",
+  "ZoneFile": "ZoneShape.json",
+  "Icon": "RSG.ico",
+  "Logo": "RSG_400px.jpg",
+  "NavbarTitle": "RSG ActivityViz",
+  "LinkURL": "https://www.rsginc.com",
+  "CenterMap": [
+    38.9072,
+    -77.0369
+  ],
   "FrontPageTitle": "RSG Demo Data",
   "FrontPageGraphic": "RSG_400px.jpg",
-  "scenarios":{
+  "scenarios": {
     "INRIX": {
-      "title":"- Washington DC INRIX Processing",
+      "title": "- Washington DC INRIX Processing",
       "visualizations": {
         "GrpBar": [
           {
@@ -19,18 +22,23 @@
             "file": "BarChartAndMapData.csv",
             "config": "Default"
           }
-          ],
+        ],
         "RadarCharts": [
           {
-            "name":"ThisBeMyrRadars",
+            "name": "ThisBeMyrRadars",
             "file": "RadarChartsData.csv",
             "config": "Default"
+          }
+        ],
+        "Chord": [
+          {
+            "name": "Thisismychordchart"
           }
         ]
       }
     }
   },
-  "RadarCharts":{
+  "RadarCharts": {
     "Default": {
       "NumberColsRadar": 3,
       "IndependentScale": [
@@ -40,13 +48,11 @@
     }
   },
   "GrpMap": {
-    "Default":
-      {
-        "CycleMapTools": false
-      }
-
+    "Default": {
+      "CycleMapTools": false
+    }
   },
-  "GroupedCharts":{
+  "GroupedCharts": {
     "Default": {
       "NumberColsGrouped": 1,
       "SwapLegendByDefault": true,
@@ -56,14 +62,11 @@
       "ChartWidthOverride": []
     }
   },
-  "ThreeDMap":{
-    "ShowPeriodsAsDropdown":false,
-    "DataHasPeriods":true,
-    "ZoneFile": []
-  },
   "Chord": {
-    "ZoneFilterFile": "cocs.csv",
-    "LabelSize": "14",
-    "LegendText": "Truck Flows"
+    "Default": {
+      "ZoneFilterFile": "cocs.csv",
+      "LabelSize": "14",
+      "LegendText": "Truck Flows"
     }
+  }
 }
