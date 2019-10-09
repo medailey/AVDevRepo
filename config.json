@@ -1,8 +1,7 @@
 {
   "regions":{
     "rsginc":{
-      "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/",
-      "default":"default"
+      "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/"
     },
     "atlanta":{
        "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/atlanta/"
