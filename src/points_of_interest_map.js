@@ -1,7 +1,7 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object barchart_and_map will contain functions and variables that must be accessible from elsewhere
 
-var pointofinterest_and_map = (function() {
+function pointofinterest_and_map (id,indx) {
     "use strict";
     var map;
     var circleStyle = {
@@ -10,8 +10,11 @@ var pointofinterest_and_map = (function() {
         "fillOpacity": 1.0
     };
     var chartData = null;
-    var url = "../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/PointofInterest.csv"
-    var chartSelector = "#poi-by-group-chart";
+    var region = abmviz_utilities.GetURLParameter("region");
+	var dataLocation = localStorage.getItem(region);
+    var url = dataLocation+ abmviz_utilities.GetURLParameter("scenario")
+    var fileName = "PointofInterest.csv";
+    var chartSelector = "#"+id+"-chart";
     var svgChart;
     var showChartOnPage = true;
     var CENTER_LOC = [];
@@ -55,12 +58,12 @@ var pointofinterest_and_map = (function() {
     var barsWrap;
     var barsWrapRect;
     var barsWrapRectHeight;
-    var barsWrapRectId = "poi-by-group-barsWrapRectRSG"
+    var barsWrapRectId = id+"-barsWrapRectRSG"
     var barsWrapRectSelector = "#" + barsWrapRectId;
     var pointSet;
     var currentCounty = "";
 var maxLabelLength = 0;
-    var paletteRamps = d3.selectAll("#poi-by-group .ramp");
+    var paletteRamps = d3.selectAll("#"+id+" .ramp");
     var pointsAll = [];
     $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
 
@@ -84,7 +87,7 @@ var maxLabelLength = 0;
 
     function getConfigSettings(callback) {
         if (showChartOnPage) {
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + "region.json", function (data) {
+            $.getJSON(dataLocation + "region.json", function (data) {
                 $.each(data, function (key, val) {
                     if (key == "CenterMap")
                         CENTER_LOC = val;
@@ -121,7 +124,7 @@ var maxLabelLength = 0;
                 //console.log('chartGenerator being called. nvd3Chart=' + nvd3Chart);
                 var colorScale = d3.scale.category20();
                 var nvd3Chart = nv.models.multiBarHorizontalChart();
-                if ($("#poi-by-group-stacked").is(":checked")) {
+                if ($("#"+id+"-stacked").is(":checked")) {
                     nvd3Chart = nv.models.multiBarHorizontalChart().groupSpacing(BARSPACING);
                 } else {
                     nvd3Chart = nv.models.multiBarHorizontalChart();
@@ -142,9 +145,9 @@ var maxLabelLength = 0;
                     right: marginRight,
                     top: marginTop,
                     bottom: marginBottom
-                }).id("poi-by-group-chart-multiBarHorizontalChart").stacked(true).showControls(false);
+                }).id(id+"-chart-multiBarHorizontalChart").stacked(true).showControls(false);
                 nvd3Chart.yAxis.tickFormat(d3.format(',.2f'));
-                nvd3Chart.yAxis.axisLabel(groupColumn + " by " + $("#poi-by-group-values-current").val());
+                nvd3Chart.yAxis.axisLabel(groupColumn + " by " + $("#"+id+"-values-current").val());
                 //this is actually for xAxis since basically a sideways column chart
                 nvd3Chart.xAxis.axisLabel(pointNameCol).axisLabelDistance(100);
                 //this is actually for yAxis
@@ -197,7 +200,7 @@ var maxLabelLength = 0;
         d3.csv(url, function (error, data) {
             "use strict";
             if (error) {
-                $('#poi-by-group').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Point of Interest Map data.</span></h3></div>");
+                $('#'+id+'-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Point of Interest Map data.</span></h3></div>");
                 throw error;
             }
 
@@ -264,14 +267,14 @@ var maxLabelLength = 0;
 
     function setDataSpecificDOM() {
         //d3.selectAll(".poi-by-group-area-type").html(countyColumn);
-        d3.selectAll(".poi-by-group-values").html("Point Value");
-        d3.selectAll(".poi-by-group-group").html(pointNameCol);
-        d3.selectAll(".poi-by-group-groups").html("Point " + groupColumn);
+        d3.selectAll("#"+id+"-div .poi-by-group-values").html("Point Value");
+        d3.selectAll("#"+id+"-div .poi-by-group-group").html(pointNameCol);
+        d3.selectAll("#"+id+"-div .poi-by-group-groups").html("Point " + groupColumn);
         if (bubblesShowing) {
            // $("#poi-by-group-bubbles").prop("checked", bubblesShowing);
-            $("#poi-by-group-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
+            $("#"+id+"-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
 
-            $("#poi-by-group-bubble-size").prop("disabled", !bubblesShowing);
+            $("#"+id+"-bubble-size").prop("disabled", !bubblesShowing);
         } else {
           /*  $("#poi-by-group-bubbles").prop("checked", false);
             $("#poi-by-group-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
@@ -283,22 +286,22 @@ var maxLabelLength = 0;
         //d3.selectAll(".poi-by-group-trip-mode-bubbles").html("Bubbles");
         //d3.selectAll(".poi-by-group-trip-mode-example").html(modes[0]);
         valueCols.forEach(function (modeName) {
-            $("#poi-by-group-values-current").append("<option>" + modeName + "</option>");
+            $("#"+id+"-values-current").append("<option>" + modeName + "</option>");
         });
         groupArry.forEach(function (groupName) {
-            $("#poi-by-group-groups-current").append("<option>" + groupName + "</option>");
+            $("#"+id+"-groups-current").append("<option>" + groupName + "</option>");
         });
 
-        d3.selectAll(".poi-by-group-type").html($("#poi-by-group-values-current").val());
+        d3.selectAll("#"+id+"-div .poi-by-group-type").html($("#"+id+"-values-current").val());
 
-        $('#poi-by-group-values-current').change(function () {
-            selectedDataGrp = $('#poi-by-group-values-current').val();
+        $('#'+id+'-values-current').change(function () {
+            selectedDataGrp = $('#'+id+'-values-current').val();
             createEmptyChart();
             redrawMap();
-            d3.selectAll(".poi-by-group-type").html($("#poi-by-group-values-current").val());
+            d3.selectAll("#"+id+"-div .poi-by-group-type").html($("#"+id+"-values-current").val());
         });
-        $('#poi-by-group-groups-current').change(function () {
-            selectedGroup = $('#poi-by-group-groups-current').val();
+        $('#'+id+'-groups-current').change(function () {
+            selectedGroup = $('#'+id+'-groups-current').val();
             redrawMap();
 
         });
@@ -306,7 +309,7 @@ var maxLabelLength = 0;
 
     function createMap(callback) {
 
-        map = L.map("poi-by-group-map", {
+        map = L.map(id+"-map", {
             minZoom: 7
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
@@ -463,11 +466,11 @@ var maxLabelLength = 0;
            // bubblesShowing = $("#poi-by-group-bubbles").is(":checked");
 
             console.log('updateBubbles: bubblesShowing=' + bubblesShowing);
-            console.log('$("#poi-by-group-bubble-size").prop("disabled"): ' + $("#poi-by-group-bubble-size").prop("disabled"));
-            $("#poi-by-group-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
+            console.log('$("#'+id+'-bubble-size").prop("disabled"): ' + $("#"+id+"-bubble-size").prop("disabled"));
+            $("#"+id+"-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
 
-            $("#poi-by-group-bubble-size").prop("disabled", !bubblesShowing);
-            console.log('$("#poi-by-group-bubble-size").prop("disabled"): ' + $("#poi-by-group-bubble-size").prop("disabled"));
+            $("#"+id+"-bubble-size").prop("disabled", !bubblesShowing);
+            console.log('$("#'+id+'-bubble-size").prop("disabled"): ' + $("#"+id+"-bubble-size").prop("disabled"));
             if (bubblesShowing) {
                 updateBubbleColor();
                 updateBubbleSize();
@@ -480,9 +483,9 @@ var maxLabelLength = 0;
             }
         }
 
-        $('#poi-by-group-point-size').change(updatePointSize);
-        $("#poi-by-group-bubble-size").change(updateBubbleSize);
-        $("#poi-by-group-legend-type").click(function () {
+        $('#'+id+'-point-size').change(updatePointSize);
+        $("#"+id+"-bubble-size").change(updateBubbleSize);
+        $("#"+id+"-legend-type").click(function () {
             extNvd3Chart.legend.vers(this.checked ? "classic" : "furious");
             extNvd3Chart.update();
         });
@@ -495,17 +498,17 @@ var maxLabelLength = 0;
 
         //Logic fr cycling through the maps
         //end
-        $("#poi-by-group-current-trip-mode-bubbles").change(function () {
+        $("#"+id+"-current-trip-mode-bubbles").change(function () {
             updateCurrentTripModeOrClassification();
             redrawMap();
         });
 
-        $("#poi-by-group-classification").change(function () {
+        $("#"+id+"-classification").change(function () {
             //updateCurrentTripModeOrClassification();
             redrawMap();
         });
 
-        $("#poi-by-group-bubble-color").spectrum({
+        $("#"+id+"-bubble-color").spectrum({
             color: bubbleColor,
             showInput: true,
             className: "full-spectrum",
@@ -542,7 +545,7 @@ var maxLabelLength = 0;
             }
         });
 
-        $("#poi-by-group-point-color").spectrum({
+        $("#"+id+"-point-color").spectrum({
             color: pointColor,
             showInput: true,
             className: "full-spectrum",
@@ -580,7 +583,7 @@ var maxLabelLength = 0;
         });
         //initialize the map palette
         // setColorPalette(selectedColorRampIndex);
-        $("#poi-by-group-checkboxes").change(function () {
+        $("#"+id+"-checkboxes").change(function () {
             redrawMap();
         });
         updateChart(function () {
@@ -619,13 +622,13 @@ var maxLabelLength = 0;
         var mapCenter = map.getCenter();
         var eastBound = map.getBounds().getEast();
         var centerEast = L.latLng(mapCenter.lat, eastBound);
-        var bubbleMultiplier = parseInt($("#poi-by-group-bubble-size").val());
-        var mapBounds = d3.select("#poi-by-group-map").node().getBoundingClientRect();
+        var bubbleMultiplier = parseInt($("#"+id+"-bubble-size").val());
+        var mapBounds = d3.select("#"+id+"-map").node().getBoundingClientRect();
         var mapRadiusInPixels = mapBounds.width / 2;
         var maxBubbleRadiusInPixels = mapRadiusInPixels / 50;
         var maxBubbleSize = bubbleMultiplier * maxBubbleRadiusInPixels;
         var dataSeries = [];
-        var selectedDataName = $('#poi-by-group-values-current').val();
+        var selectedDataName = $('#'+id+'-values-current').val();
         pointsAll.forEach(function (d) {
             var dataSelected = poiData[d][selectedGroup];
             dataSelected.forEach(function (d) {
@@ -691,7 +694,7 @@ var maxLabelLength = 0;
             svgChart.datum(hierarchicalData).call(extNvd3Chart);
             //create a rectangle over the chart covering the entire y-axis and to the left of x-axis to include county labels
             //first check if
-            $('#poi-by-group .nv-x .nv-axis text').not('.nv-axislabel').css('transform', 'rotate(' + ROTATELABEL + 'deg)');
+            $('#'+id+'-div .nv-x .nv-axis text').not('.nv-axislabel').css('transform', 'rotate(' + ROTATELABEL + 'deg)');
             barsWrap = svgChart.select(".nv-barsWrap.nvd3-svg");
             if (barsWrap[0].length == 0) {
                 throw ("did not find expected part of chart")
@@ -747,7 +750,7 @@ var maxLabelLength = 0;
             console.log('changing from ' + currentCounty + " to " + newCurrentCounty);
             currentCounty = newCurrentCounty;
             var countyLabels = d3.selectAll(".nvd3.nv-multiBarHorizontalChart .nv-x text ");
-            countyLabels.classed("poi-by-group-current-poi", function (d, i) {
+            countyLabels.classed(id+"-current-poi", function (d, i) {
                 var setClass = d == currentCounty;
                 return setClass;
             });
@@ -799,4 +802,4 @@ var maxLabelLength = 0;
     return {
         updateOutline: updateOutline,
     };
-}());
+};

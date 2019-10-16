@@ -16,7 +16,7 @@
     "INRIX": {
       "title": "- Washington DC INRIX Processing",
       "visualizations": {
-        "GrpBar": [
+        "BarMap": [
           {
             "name": "BarChart",
             "file": "BarChartAndMapData.csv",
@@ -33,7 +33,7 @@
         ],
         "Chord": [
           {
-            "name": "Thisismychordchart"
+            "name": "Thisismychordcha rt"
           }
         ]
       }
@@ -48,7 +48,7 @@
       "ConvertAxesToPercent": true
     }
   },
-  "GrpMap": {
+  "BarMap": {
     "Default": {
       "CycleMapTools": false
     }

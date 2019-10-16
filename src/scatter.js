@@ -1,10 +1,12 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object scatter will contain functions and variables that must be accessible from elsewhere
-var scatter = (function() {
+function scatter(id,indx) {
     "use strict";
-
-    var url = "../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/Scatter.csv";
+	var region = abmviz_utilities.GetURLParameter("region");
+	var dataLocation = localStorage.getItem(region);
+    var url = dataLocation + abmviz_utilities.GetURLParameter("scenario");
     var showChartOnPage = true;
+    var fileName = "Scatter.csv";
     $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
     var xAxisColumn;
     var yAxisColumn;
@@ -25,14 +27,27 @@ var scatter = (function() {
 
     function getConfigSettings(callback) {
         if (showChartOnPage) {
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + "region.json", function (data) {
+            $.getJSON(dataLocation + "region.json", function (data) {
+                var configName = "Default";
                 $.each(data, function (key, val) {
-                    if (key == "Scatter") {
-                        $.each(val, function (opt, value) {
 
-                        });
+                    if (data["scenarios"][scenario].visualizations != undefined) {
+                        if (data["scenarios"][scenario].visualizations["Scatter"][configIndx].file) {
+                            fileName = data["scenarios"][scenario].visualizations["Scatter"][configIndx].file;
+                        }
                     }
                 });
+                var configSettings = data["Scatter"][configName];
+
+                $.each(configSettings, function (opt, value) {
+
+                });
+
+
+            }).complete(function () {
+                if (url.indexOf(fileName) == -1) {
+                    url += "/" + fileName;
+                }
                 callback();
             });
         }
@@ -142,7 +157,7 @@ var scatter = (function() {
                     yAxisColumn + " / " + xAxisColumn + ": " + (d[yAxisColumn] / d[xAxisColumn]).toFixed(2);
             });
 
-        var svg = d3.select("#scatter-chart-container")
+        var svg = d3.select("#"+id+"-chart-container")
             .append("svg")
             .attr("width", outerWidth)
             .attr("height", outerHeight)
@@ -249,8 +264,8 @@ var scatter = (function() {
     };
 
     function setDataSpecificDOM() {
-        $('.scatter-chart-yaxis-title').text(yAxisColumn);
-        $('.scatter-chart-xaxis-title').text(xAxisColumn);
+        $('#'+id+'-div .scatter-chart-yaxis-title').text(yAxisColumn);
+        $('#'+id+'-div .scatter-chart-xaxis-title').text(xAxisColumn);
     };
     //readInData();
-}());
+};

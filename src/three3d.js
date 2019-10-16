@@ -3,7 +3,11 @@
 var three3d = (function three3dFunction() {
 	"use strict";
 	var naColor = "#ffffff"; //white
-
+	var region = abmviz_utilities.GetURLParameter("region");
+	var dataLocation = localStorage.getItem(region);
+	 var fileName = "3DAnimatedMapData.csv";
+    var scenario = abmviz_utilities.GetURLParameter("scenario");
+    var url = dataLocation + scenario;
 	var colors = ["red", "red", "red", "red"]; //these will be replaced by default palette/ramp colors
 	var selectedColorRampIndex = 0;
 	var allTimeSqrtScale;
@@ -85,58 +89,69 @@ var three3d = (function three3dFunction() {
         }
 	})})}); //end call to readInData and its follwing callback
 
-function getTheConfigFile(callback){
+function getTheConfigFile(callback) {
 
-	    $.getJSON("../data/"+abmviz_utilities.GetURLParameter("region")+"/"+"region.json",function(data) {
+    $.getJSON(dataLocation + "region.json", function (data) {
+        var configName = "Default";
+        if (data["scenarios"][scenario].visualizations != undefined) {
+            if (data["scenarios"][scenario].visualizations["3DMap"][0].file) {
+                fileName = data["scenarios"][scenario].visualizations["3DMap"][0].file;
 
-            $.each(data, function (key, val) {
-                if (key == "ZoneFile") {
-                    zonefiles = val;
+            }
+        }
+        url += "/" + fileName;
+        //go through region level config settings
+        $.each(data, function (key, val) {
+
+            if (key == "ZoneFile")
+                zonefiles = val;
+            if (key == "CenterMap" && CENTER_MAP.length == 0)
+                CENTER_MAP = val;
+
+        });
+        if (data["scenarios"] != undefined && data["scenarios"][scenario] != undefined) {
+            if (data["scenarios"][scenario]["CenterMap"] != undefined) {
+                CENTER_MAP = data["scenarios"][scenario]["CenterMap"];
+            }
+
+        }
+
+        var configSettings = data["3DMap"][configName];
+
+        if (configSettings != undefined) {
+
+            $.each(configSettings, function (opt, value) {
+                if (opt == "ShowPeriodsAsDropdown")
+                    showPeriodsAsDropdown = value;
+                if (opt == "ZoneFilterLabel")
+                    zonefilterlabel = value;
+                if (opt == "DataHasPeriods")
+                    DataHasPeriods = value;
+                if (opt == "ZoneFilterFile" && value !="") {
+                    ZONE_FILTER_LOC = value;
                 }
-                if (key == "CenterMap" && CENTER_MAP.length ==0) {
-                    CENTER_MAP = val;
-                }
-                if (key == "ThreeDMap") {
-                    $.each(val, function (opt, value) {
-                        if (opt == "ShowPeriodsAsDropdown")
-                            showPeriodsAsDropdown = value;
-                        if (opt =="ZoneFilterLabel")
-                        	zonefilterlabel = value;
-                        if (opt == "DataHasPeriods")
-                            DataHasPeriods = value;
-                        if (opt == "ZoneFilterFile") {
-                            ZONE_FILTER_LOC = value;
-                        }
-                         if (opt == "ZoneFilters") {
-                            $.each(value,function(filtercolumn,filtername){
-                                zonefilters[filtercolumn] = filtername;
-                            })
-                        }
-                        if(opt=="CentroidsOff" && centroidsOff == undefined) {
-                            centroidsOff= val;
-                            drawCentroids = !centroidsOff;
-                        }
+                if (opt == "ZoneFilters") {
+                    $.each(value, function (filtercolumn, filtername) {
+                        zonefilters[filtercolumn] = filtername;
                     })
                 }
-                if(key=="scenarios" && Array.isArray(val)) {
-                    $.each(val, function (k, v) {
-                        if (v.name === abmviz_utilities.GetURLParameter("scenario") && v.CenterMap) {
-                            CENTER_MAP = v.CenterMap;
-                        }
-                    });
+                if (opt == "CentroidsOff" && centroidsOff == undefined) {
+                    centroidsOff = val;
+                    drawCentroids = !centroidsOff;
                 }
-            });
-            ZONE_FILE_LOC = zonefiles;
-            ZONE_FILTER_LOC = ZONE_FILTER_LOC;
-             callback();
-        });
-
+            })
+        }
+    }).complete(function () {
+        ZONE_FILE_LOC = zonefiles;
+        ZONE_FILTER_LOC = ZONE_FILTER_LOC;
+        callback();
+    });
 }
 
 	function readInFilterData(callback) {
         if (Object.keys(zonefilters).length > 1 && ZONE_FILTER_LOC != '') {
             var zonecsv;
-            d3.text("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/"+ZONE_FILTER_LOC, function (error, filterdata) {
+            d3.text(dataLocation + abmviz_utilities.GetURLParameter("scenario") + "/"+ZONE_FILTER_LOC, function (error, filterdata) {
                 zonecsv = d3.csv.parseRows(filterdata).slice(1);
                 zoneheaders = d3.csv.parseRows(filterdata)[0];
                 $('#three3d-filter-label').append(zonefilterlabel);
@@ -162,7 +177,7 @@ function getTheConfigFile(callback){
 	function readInData(callback) {
 		"use strict";
 
-		d3.text("../data/" +abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") + "/3DAnimatedMapData.csv", function (error, data) {
+		d3.text(url, function (error, data) {
             var zonecsv;
             "use strict";
             if (error) {

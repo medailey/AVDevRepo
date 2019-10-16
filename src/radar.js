@@ -14,26 +14,40 @@ var radar = (function () {
 	var convertAxesToPercent = true;
 	var independentscale =[];
 	 var independentAxesCharts = [];
+	var region = abmviz_utilities.GetURLParameter("region");
+	var scenario = abmviz_utilities.GetURLParameter("scenario");
+	var dataLocation = localStorage.getItem(region);
+	var fileName = "RadarChartsData.csv";
 	function createRadar() {
         //read in data and create radar when finished
         if (showChartOnPage) {
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + "region.json", function (data) {
+            $.getJSON(dataLocation + "region.json", function (data) {
+                var configName = "Default";
                 $.each(data, function (key, val) {
-                    if (key == "RadarCharts")
-                        $.each(val,function(opt,value){
-                            if(opt =="NumberColsRadar")
+                    if (data["scenarios"][scenario].visualizations != undefined) {
+                        if (data["scenarios"][scenario].visualizations["RadarCharts"][0].file) {
+                            fileName = data["scenarios"][scenario].visualizations["RadarCharts"][0].file;
+
+                        }
+                    }
+
+                    var configSettings = data["RadarCharts"][configName];
+                    if (configSettings != undefined) {
+                        $.each(configSettings, function (opt, value) {
+                            if (opt == "NumberColsRadar")
                                 numberOfCols = value;
-                            if(opt=="IndependentScale")
+                            if (opt == "IndependentScale")
                                 independentscale = value;
-                            if(opt=="ConvertAxesToPercent")
+                            if (opt == "ConvertAxesToPercent")
                                 convertAxesToPercent = value;
                         })
 
-
+                    }
                 });
             });
+
             if (chartData === undefined) {
-                d3.text("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/RadarChartsData.csv", function (error, data) {
+                d3.text(dataLocation + abmviz_utilities.GetURLParameter("scenario") + "/"+fileName, function (error, data) {
                     "use strict";
 				if (error) {
                     $('#radar').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the radar data.</span></h3></div>");

@@ -1,9 +1,13 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object chord will contain functions and variables that must be accessible from elsewhere
 
-var chord = (function () {
+function chord (id,indx) {
     "use strict";
-    var url = "../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/ChordData.csv";
+    var region = abmviz_utilities.GetURLParameter("region");
+    var dataLocation = localStorage.getItem(region);
+    var fileName = "ChordData.csv";
+    var url = dataLocation + abmviz_utilities.GetURLParameter("scenario") ;
+    var scenario = abmviz_utilities.GetURLParameter("scenario");
     var mainGroupColumnName;
     var subGroupColumnName;
     var quantityColumn;
@@ -62,7 +66,17 @@ var chord = (function () {
 
     function getConfigSettings(callback) {
         if (showChartOnPage) {
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + "region.json", function (data) {
+            $.getJSON(dataLocation + "region.json", function (data) {
+                var configName = "Default";
+                if (data["scenarios"][scenario].visualizations != undefined) {
+                    if (data["scenarios"][scenario].visualizations["Chord"][indx].file) {
+                        fileName = data["scenarios"][scenario].visualizations["Chord"][indx].file;
+
+                    }
+                }
+                url += "/" + fileName;
+
+                //GO THROUGH region level configuration settings
                 $.each(data, function (key, val) {
                     if (key == "CountyFile")
                         COUNTY_FILE = val;
@@ -72,48 +86,50 @@ var chord = (function () {
                         CENTER_LOC = val;
                     if (key == "DefaultFocusColor")
                         focusColor = val;
-
-                    if (key == "Chord") {
-
-                        $.each(val, function (opt, value) {
-                            if (opt == "ZoneFilterFile") {
-                                ZONE_FILTER_LOC = value;
-                            }
-                            if (opt == "LabelSize") {
-                                labelSize = value;
-                            }
-                            if (opt == "LegendRows") {
-                                legendRows = value;
-                            }
-                            if (opt == "LegendText") {
-                                legendText = value;
-                            }
-                        })
-                    }
-                    if (key == "scenarios" && Array.isArray(val)) {
-                        $.each(val, function (k, v) {
-                            if (v.name === abmviz_utilities.GetURLParameter("scenario") && v.CenterMap) {
-                                CENTER_LOC = v.CenterMap;
-                                if (v.ScenarioFocus && v.ScenarioFocus.length > 0) {
-                                    SCENARIO_FOCUS = true;
-                                    scenarioPolyFile = v.ScenarioFocus;
-                                    $('#chord-by-district-map').before(" Focus Color: <input type='text' id='chord-focus-color' style='display: none;' >  ");
-                                }
-                            }
-                        });
-                    }
                 });
+
+                if (data["scenarios"] != undefined && data["scenarios"][scenario] != undefined) {
+                    if (data["scenarios"][scenario]["CenterMap"] != undefined) {
+                        CENTER_LOC = data["scenarios"][scenario]["CenterMap"];
+                    }
+                    if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
+                        SCENARIO_FOCUS = true;
+                        scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
+                        $('#'+id+'-by-district-map').before(" Focus Color: <input type='text' id='"+id+"-focus-color' style='display: none;' >  ");
+                    }
+                }
+                var configSettings = data["Chord"][configName];
+
+                if (configSettings != undefined) {
+                    $.each(configSettings, function (opt, value) {
+                        if (opt == "ZoneFilterFile") {
+                            ZONE_FILTER_LOC = value;
+                        }
+                        if (opt == "LabelSize") {
+                            labelSize = value;
+                        }
+                        if (opt == "LegendRows") {
+                            legendRows = value;
+                        }
+                        if (opt == "LegendText") {
+                            legendText = value;
+                        }
+                    });
+                }
+            }).complete(function () {
                 callback();
+                ZONE_FILTER_LOC = ZONE_FILTER_LOC;
+                $("#chord-grouppercent").off().click(function () {
+                    showGrpPercent = !showGrpPercent;
+                    createChord();
+                });
+                $("#chord-wholepercent").off().click(function () {
+                    showWholePercent = !showWholePercent;
+                    createChord();
+                });
             });
-            ZONE_FILTER_LOC = ZONE_FILTER_LOC;
-            $("#chord-grouppercent").off().click(function () {
-                showGrpPercent = !showGrpPercent;
-                createChord();
-            });
-            $("#chord-wholepercent").off().click(function () {
-                showWholePercent = !showWholePercent;
-                createChord();
-            });
+
+
         }
     }
 
@@ -165,11 +181,11 @@ var chord = (function () {
 
             indexByName = {};
             nameByIndex = {};
-            var totalContainerWidth = $('#chord-chart-container').width() - ($('#chord-chart-container').width() *0.2);
-            var outerRadius = totalContainerWidth /2,
+            var totalContainerWidth = $('#'+id+'-chart-container').width() - ($('#'+id+'-chart-container').width() * 0.2);
+            var outerRadius = totalContainerWidth / 2,
                 innerRadius = outerRadius - 130;
-            height = totalContainerWidth-50;
-            width = totalContainerWidth-50;
+            height = totalContainerWidth - 50;
+            width = totalContainerWidth - 50;
 
 
             var r1 = height / 2, r0 = r1 / 2;
@@ -182,16 +198,17 @@ var chord = (function () {
                 .innerRadius(innerRadius)
                 .outerRadius(innerRadius + 20);
             var windwidth = totalContainerWidth;
-            d3.select('#chord-chart-container').select("svg").remove();
-            d3.select('#chord-dropdown-div').select("svg").remove();
-    var transForm = ($('#chord-chart-container').width()/2);
-            var svg = d3.select("#chord-chart-container").append("svg:svg")
-                .attr("width", $('#chord-chart-container').width() )
+            d3.select('#'+id+'-chart-container').select("svg").remove();
+            d3.select('#'+id+'-dropdown-div').select("svg").remove();
+            var transForm = ($('#'+id+'-chart-container').width() / 2);
+            var svg = d3.select("#"+id+"-chart-container").append("svg:svg")
+                .attr("width", $('#'+id+'-chart-container').width())
                 .attr("height", height)
                 //.style("padding-left", "3%")
                 //style("padding-right", "3%")
                 .append("svg:g")
-                .attr("id", "circle")
+                .attr("id", id+"_circle")
+                .attr("selector","chordcircle")
                 .attr("transform", "translate(" + transForm + "," + height / 2 + ")");
             svg.append("circle")
                 .attr("r", r0 + 20);
@@ -267,7 +284,7 @@ var chord = (function () {
                 .attr("class", "group")
                 .on("mouseover", mouseover)
                 .on("mouseout", function (d) {
-                    d3.select('#chord-tooltip').style("visibility", "hidden")
+                    d3.select('#'+id+'-tooltip').style("visibility", "hidden")
                 });
 
             var groupPath = g.append("path")
@@ -316,7 +333,7 @@ var chord = (function () {
                     return fill(d.source.index);
                 })
                 .attr("d", d3.svg.chord().radius(innerRadius)).on("mouseover", function (d) {
-                    d3.select("#chord-tooltip")
+                    d3.select("#"+id+"-tooltip")
                         .style("visibility", "visible")
                         .html(chordTip(rdr(d)))
                         .style("top", function () {
@@ -334,7 +351,7 @@ var chord = (function () {
 
                 })
                 .on("mouseout", function (d) {
-                    d3.select("#chord-tooltip").style("visibility", "hidden")
+                    d3.select("#"+id+"-tooltip").style("visibility", "hidden")
                 });
 
             function chordTip(d, i) {
@@ -381,7 +398,7 @@ var chord = (function () {
             function mouseover(d, i) {
                 var name = nameByIndex[i].col;
                 console.log("source" + nameByIndex[i].col);
-                d3.select("#chord-tooltip")
+                d3.select("#"+id+"-tooltip")
                     .style("visibility", "visible")
                     .html(groupTip(rdr(d)))
                     .style("top", function () {
@@ -414,12 +431,12 @@ var chord = (function () {
             var columns = width / 165;
             var lines = Number.parseInt(Math.ceil(size / columns));
             var legheight = 30 * lines;
-            var container = d3.select("#chord-dropdown-div").append("svg")
+            var container = d3.select("#"+id+"-dropdown-div").append("svg")
 
                 .attr("width", width).attr("height", legheight).style('padding-top', "10px");
-                if(!SCENARIO_FOCUS){
-                     $('#chord-chart-map').css("margin-top", $('#chord-dropdown-div').height()/2+"px");
-                     }
+            if (!SCENARIO_FOCUS) {
+                $('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height() / 2 + "px");
+            }
             var dataL = 0;
             var offset = 100;
             var newdataL = 0;
@@ -432,8 +449,8 @@ var chord = (function () {
                     var calcX = (i % legendRows) * (width / columns);
                     xOff = (i % legendRows) * (width / columns)
                     yOff = Math.floor(i / legendRows) * 20
-                    if(prevLegendLength !=0){
-                        xOff = xOff + (prevLegendLength-9);
+                    if (prevLegendLength != 0) {
+                        xOff = xOff + (prevLegendLength - 9);
                     }
                     prevLegendLength = d.length;
                     return "translate(" + xOff + "," + yOff + ")"
@@ -462,7 +479,8 @@ var chord = (function () {
             texts.on("click", function (d) {
                 showHideBlobs(d);
             })
-        });   //end d3.csv
+        });
+              //end d3.csv
 
         function showHideBlobs(d) {
             legendHeadersShowHide[d] = !legendHeadersShowHide[d];
@@ -483,7 +501,7 @@ var chord = (function () {
 
         }
 
-        $("#chord-focus-color").spectrum({
+         $("#"+id+"-focus-color").spectrum({
             color: focusColor,
             showInput: true,
             className: "full-spectrum",
@@ -500,6 +518,7 @@ var chord = (function () {
                 redrawMap();
 
             }
+
         });
 
     }
@@ -508,7 +527,7 @@ var chord = (function () {
         if (ZONE_FILTER_LOC != '') {
             var zonecsv;
             try {
-                d3.csv("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/" + ZONE_FILTER_LOC, function (error, filterdata) {
+                d3.csv(dataLocation + abmviz_utilities.GetURLParameter("scenario") + "/" + ZONE_FILTER_LOC, function (error, filterdata) {
                     //zonecsv = d3.csv.parseRows(filterdata).slice(1);
                     if (error) {
                         $('#chord').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the chord data.</span></h3></div>");
@@ -645,8 +664,8 @@ var chord = (function () {
         if (scenarioPolyFile != undefined) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
         }
-        if(!SCENARIO_FOCUS) {
-            $('#chord-chart-map').css("margin-top", $('#chord-dropdown-div').height() + "px");
+        if (!SCENARIO_FOCUS) {
+            $('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height() + "px");
         }
     }
 
@@ -664,7 +683,7 @@ var chord = (function () {
         //var latlngcenter = JSON.parse(CENTER_LOC);
         //var lat=latlngcenter[0];
         //var lng=latlngcenter[1];
-        map = L.map("chord-by-district-map", {
+        map = L.map(id+"-by-district-map", {
             minZoom: 6
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
@@ -676,7 +695,7 @@ var chord = (function () {
         countiesSet = new Set();
 
 
-        $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + ZONE_FILE_LOC, function (zoneTiles) {
+        $.getJSON(dataLocation + ZONE_FILE_LOC, function (zoneTiles) {
             "use strict";
             //there should be at least as many zones as the number we have data for.
 
@@ -739,7 +758,7 @@ var chord = (function () {
                 opacity: 1.0
             });
             if (scenarioPolyFile != undefined) {
-                $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + abmviz_utilities.GetURLParameter("scenario") + "/" + scenarioPolyFile, function (scenarioTiles) {
+                $.getJSON(dataLocation + abmviz_utilities.GetURLParameter("scenario") + "/" + scenarioPolyFile, function (scenarioTiles) {
                     "use strict";
                     focusLayer = L.geoJSON(scenarioTiles, {
                         style: styleFocusGeoJSONLayer
@@ -748,7 +767,7 @@ var chord = (function () {
                 });
             }
             underlyingMapLayer.addTo(map);
-            $.getJSON("../data/" + abmviz_utilities.GetURLParameter("region") + "/" + COUNTY_FILE, function (countyTiles) {
+            $.getJSON(dataLocation + COUNTY_FILE, function (countyTiles) {
                 "use strict";
                 console.log(COUNTY_FILE + " success");
 
@@ -790,7 +809,8 @@ var chord = (function () {
             }).complete(function () {
                 console.log(COUNTY_FILE + " complete");
             });
- $('#chord-chart-map').css("margin-top", $('#chord-dropdown-div').height() +"px");
+            //$('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height() + "px");
+
             //end geoJson of county layer
             function onEachCounty(feature, layer) {
                 layer.on({
@@ -811,6 +831,6 @@ var chord = (function () {
     //createChord();
     window.addEventListener("resize", function () {
         console.log("Got resize event. Calling createTimeUse");
-        createChord();
+       createChord();
     });
-}()); //end encapsulating IIFE
+}; //end encapsulating IIFE

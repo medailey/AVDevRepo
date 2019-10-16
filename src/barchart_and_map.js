@@ -31,7 +31,7 @@ var barchart_and_map = (function () {
 	var scenarioPolyFile;
 	var scenario = abmviz_utilities.GetURLParameter("scenario");
 	var region = abmviz_utilities.GetURLParameter("region");
-	 var dataLocation = localStorage.getItem(region);
+	var dataLocation = localStorage.getItem(region);
 	var url = dataLocation+ scenario;// + "/BarChartAndMapData.csv"
 	var fileName = "BarChartAndMapData.csv";
 	var chartSelector = "#mode-share-by-county-chart";
@@ -113,13 +113,11 @@ var barchart_and_map = (function () {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
                 if(data["scenarios"][scenario].visualizations != undefined) {
-                    if (data["scenarios"][scenario].visualizations["GrpBar"][0].file) {
-                        fileName = data["scenarios"][scenario].visualizations["GrpBar"][0].file;
+                    if (data["scenarios"][scenario].visualizations["BarMap"][0].file) {
+                        fileName = data["scenarios"][scenario].visualizations["BarMap"][0].file;
 
                     }
                 }
-				url+="/"+fileName;
-
                 //GO THROUGH region level configuration settings
                 $.each(data, function (key, val) {
                     if (key == "CountyFile")
@@ -148,7 +146,7 @@ var barchart_and_map = (function () {
                 }
 
 
-				var configSettings = data["GrpMap"][configName];
+				var configSettings = data["BarMap"][configName];
 				if(configSettings != undefined) {
                     $.each(configSettings, function (opt, value) {
                         if (opt == "ZoneFilterFile") {
@@ -174,6 +172,11 @@ var barchart_and_map = (function () {
                     });
                 }
             }).complete(function() {
+
+            	if(url.indexOf(fileName)==-1){
+            		console.log("here");
+            url += "/" + fileName;
+                }
             	callback();
             	 ZONE_FILTER_LOC = ZONE_FILTER_LOC;
 			});
