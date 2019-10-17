@@ -40,224 +40,227 @@ var chartDataContainer=[];
 
         if (showChartOnPage) {
             $.getJSON(dataLocation + "region.json", function (data) {
-                 var configName = "Default";
+                var configName = "Default";
                 $.each(data, function (key, val) {
 
                     if (data["scenarios"][scenario].visualizations != undefined) {
                         if (data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].file) {
                             fileName = data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].file;
                         }
+                        if (data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config) {
+                            configName = data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config;
+                        }
                     }
                 });
-                    var configSettings = data["GroupedCharts"][configName];
+                var configSettings = data["GroupedCharts"][configName];
 
 
-                        $.each(configSettings, function (opt, value) {
-                            if (opt == "NumberColsGrouped" && numberOfCols == undefined)
-                                numberOfCols = value;
-                            if (opt == "IndependentScale")
-                                independentScale = value;
-                            if (opt == "SwapLegendByDefault" && pivotData == undefined) {
-                                if (value == "N/A") {
-                                    pivotData = false;
-                                    $("#"+id+"-pivot-axes").closest('li').hide();
-                                }
-                                else
-                                    pivotData = value;
-                            }
-                            if (opt == "ShowAsVerticalByDefault" && showAsVertical == undefined) {
-                                if (value == "N/A") {
-                                    showAsVertical = false;
-                                    $("#"+id+"-toggle-horizontal").closest('li').hide();
-                                }
-                                else
-                                    showAsVertical = value;
-                            }
-                            if (opt == "ShowAsPercentByDefault" && showPercentages == undefined) {
-                                if (value == "N/A") {
-                                    showPercentages = false;
-                                    $("#"+id+"-toggle-percentage").closest('li').hide();
-                                }
-                                else
-                                    showPercentages = value;
+                $.each(configSettings, function (opt, value) {
+                    if (opt == "NumberColsGrouped" && numberOfCols == undefined)
+                        numberOfCols = value;
+                    if (opt == "IndependentScale")
+                        independentScale = value;
+                    if (opt == "SwapLegendByDefault" && pivotData == undefined) {
+                        if (value == "N/A") {
+                            pivotData = false;
+                            $("#" + id + "-pivot-axes").closest('li').hide();
+                        }
+                        else
+                            pivotData = value;
+                    }
+                    if (opt == "ShowAsVerticalByDefault" && showAsVertical == undefined) {
+                        if (value == "N/A") {
+                            showAsVertical = false;
+                            $("#" + id + "-toggle-horizontal").closest('li').hide();
+                        }
+                        else
+                            showAsVertical = value;
+                    }
+                    if (opt == "ShowAsPercentByDefault" && showPercentages == undefined) {
+                        if (value == "N/A") {
+                            showPercentages = false;
+                            $("#" + id + "-toggle-percentage").closest('li').hide();
+                        }
+                        else
+                            showPercentages = value;
 
-                            }
-                            if (opt == "StackAllChartsByDefault" && stackChartsByDefault == undefined) {
-                                if (value == "N/A") {
-                                    stackChartsByDefault = false;
-                                    showAsStacked = false;
-                                    $("#"+id+"-toggle-stacked").closest('li').hide();
-                                }
-                                else {
-                                    stackChartsByDefault = value;
-                                    showAsStacked = value;
-                                }
+                    }
+                    if (opt == "StackAllChartsByDefault" && stackChartsByDefault == undefined) {
+                        if (value == "N/A") {
+                            stackChartsByDefault = false;
+                            showAsStacked = false;
+                            $("#" + id + "-toggle-stacked").closest('li').hide();
+                        }
+                        else {
+                            stackChartsByDefault = value;
+                            showAsStacked = value;
+                        }
 
-                            }
-                            if (opt == "ChartWidthOverride" && ChartWidthOverride == undefined)
-                                if (value.length > 0)
-                                    ChartWidthOverride = value;
-                            if (opt == "RotateLabels") {
-                                ROTATELABEL = value;
-                            }
-                            if (opt == "BarSpacing") {
-                                BARSPACING = value;
-                            }
+                    }
+                    if (opt == "ChartWidthOverride" && ChartWidthOverride == undefined)
+                        if (value.length > 0)
+                            ChartWidthOverride = value;
+                    if (opt == "RotateLabels") {
+                        ROTATELABEL = value;
+                    }
+                    if (opt == "BarSpacing") {
+                        BARSPACING = value;
+                    }
+                });
+
+            }).complete(function () {
+                if (url.indexOf(fileName) == -1) {
+                    url += "/" + fileName;
+                }
+
+                d3.csv(url, function (error, data) {
+                    "use strict";
+                    if (error) {
+                        $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the grouped bar chart data.</span></h3></div>");
+                        throw error;
+                    }
+                    //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
+                    var headers = d3.keys(data[0]);
+                    var numCharts = headers.slice()
+                    chartData = data;
+                    mainGroupColumn = headers[0];
+                    subGroupColumn = headers[1];
+                    chartColumn = headers[3];
+                    if (pivotData == undefined)
+                        pivotData = false;
+                    if (showAsVertical == undefined)
+                        showAsVertical = false;
+                    if (showPercentages == undefined)
+                        showPercentages = false;
+                    if (stackChartsByDefault == undefined)
+                        stackChartsByDefault = false;
+                    if (showAsStacked == undefined)
+                        showAsStacked = false;
+                    if (pivotData) {
+                        var temp = mainGroupColumn;
+                        mainGroupColumn = subGroupColumn;
+                        subGroupColumn = temp;
+                    }
+                    quantityColumn = headers[2];
+                    mainGroupSet = new Set();
+                    subGroupSet = new Set();
+                    chartSet = new Set();
+                    //note NVD3 multiBarChart expects data in what seemlike an inverted hierarchy subGroups at top level, containing mainGroups
+                    var totalsForEachMainGroup = {};
+                    var totalsForIndependentGroups = {};
+                    if (subGroupColumn == undefined) {
+                        $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the grouped bar chart data.</span></h3></div>");
+                        return;
+                    }
+
+                    var chartTotals = d3.nest().key(function (d) {
+                        return d[chartColumn].replace(/\s+/g, '');
+                    }).key(function (d) {
+
+                        //change quantity to an int for convenience right off the bat
+                        d[quantityColumn] = parseInt(d[quantityColumn]);
+                        var subGroupName = d[mainGroupColumn];
+
+                        return subGroupName;
+                    }).rollup(function (objectArray) {
+                        var oneRow = objectArray[0];
+                        return {
+                            totalpos: d3.sum(objectArray, function (e) {
+                                if (e[quantityColumn] > 0) return e[quantityColumn];
+                            }),
+                            totalneg: d3.sum(objectArray, function (e) {
+                                if (e[quantityColumn] < 0) return e[quantityColumn];
+                            }),
+                            min: d3.min(objectArray, function (e) {
+                                return e[quantityColumn];
+                            }),
+                            max: d3.max(objectArray, function (e) {
+                                return e[quantityColumn];
+                            })
+                        }
+                    }).map(data);
+
+                    var findMax = [];
+                    findMax = Object.keys(chartTotals).map(function (key) {
+                        var totalpos = Object.keys(chartTotals[key]).map(function (x) {
+                            return chartTotals[key][x].totalpos;
                         });
-
-            }).complete(function(){
-            if(url.indexOf(fileName)==-1) {
-                url += "/" + fileName;
-            }
-
-            d3.csv(url, function (error, data) {
-                "use strict";
-                if (error) {
-                    $('#'+id+'-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the grouped bar chart data.</span></h3></div>");
-                    throw error;
-                }
-                //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
-                var headers = d3.keys(data[0]);
-                var numCharts = headers.slice()
-                chartData = data;
-                mainGroupColumn = headers[0];
-                subGroupColumn = headers[1];
-                chartColumn = headers[3];
-                if (pivotData == undefined)
-                    pivotData = false;
-                if (showAsVertical == undefined)
-                    showAsVertical = false;
-                if (showPercentages == undefined)
-                    showPercentages = false;
-                if (stackChartsByDefault == undefined)
-                    stackChartsByDefault = false;
-                if (showAsStacked == undefined)
-                    showAsStacked = false;
-                if (pivotData) {
-                    var temp = mainGroupColumn;
-                    mainGroupColumn = subGroupColumn;
-                    subGroupColumn = temp;
-                }
-                quantityColumn = headers[2];
-                mainGroupSet = new Set();
-                subGroupSet = new Set();
-                chartSet = new Set();
-                //note NVD3 multiBarChart expects data in what seemlike an inverted hierarchy subGroups at top level, containing mainGroups
-                var totalsForEachMainGroup = {};
-                var totalsForIndependentGroups = {};
-                if (subGroupColumn == undefined) {
-                    $('#'+id+'-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the grouped bar chart data.</span></h3></div>");
-                    return;
-                }
-
-                var chartTotals = d3.nest().key(function (d) {
-                    return d[chartColumn].replace(/\s+/g, '');
-                }).key(function (d) {
-
-                    //change quantity to an int for convenience right off the bat
-                    d[quantityColumn] = parseInt(d[quantityColumn]);
-                    var subGroupName = d[mainGroupColumn];
-
-                    return subGroupName;
-                }).rollup(function (objectArray) {
-                    var oneRow = objectArray[0];
-                    return {
-                        totalpos: d3.sum(objectArray, function (e) {
-                            if (e[quantityColumn] > 0) return e[quantityColumn];
-                        }),
-                        totalneg: d3.sum(objectArray, function (e) {
-                            if (e[quantityColumn] < 0) return e[quantityColumn];
-                        }),
-                        min: d3.min(objectArray, function (e) {
-                            return e[quantityColumn];
-                        }),
-                        max: d3.max(objectArray, function (e) {
-                            return e[quantityColumn];
+                        var totalneg = Object.keys(chartTotals[key]).map(function (x) {
+                            return chartTotals[key][x].totalneg;
                         })
-                    }
-                }).map(data);
-
-                var findMax = [];
-                findMax = Object.keys(chartTotals).map(function (key) {
-                    var totalpos = Object.keys(chartTotals[key]).map(function (x) {
-                        return chartTotals[key][x].totalpos;
-                    });
-                    var totalneg = Object.keys(chartTotals[key]).map(function (x) {
-                        return chartTotals[key][x].totalneg;
-                    })
-                    return {
-                        chart: key,
-                        maxpos: Math.max.apply(null, totalpos),
-                        minneg: Math.min.apply(null, totalneg)
-                    };
-                });
-                var rawChartData = d3.nest().key(function (d) {
-                    chartSet.add(d[chartColumn].replace(/\s+/g, ''));
-                    return d[chartColumn].replace(/\s+/g, '');
-                }).key(function (d) {
-                    //change quantity to an int for convenience right off the bat
-                    d[quantityColumn] = parseInt(d[quantityColumn]);
-                    var subGroupName = d[subGroupColumn];
-                    subGroupSet.add(subGroupName);
-                    return subGroupName;
-                }).key(function (d) {
-                    var mainGroupName = d[mainGroupColumn];
-                    if (!mainGroupSet.has(mainGroupName)) {
-                        mainGroupSet.add(mainGroupName);
-                        totalsForEachMainGroup[mainGroupName] = 0;
-                    }
-                    totalsForEachMainGroup[mainGroupName] += d[quantityColumn];
-                    return mainGroupName;
-                }).rollup(function (objectArray) {
-                    var oneRow = objectArray[0];
-                    return oneRow[quantityColumn];
-                }).map(data);
-                //need to run through rawChartData and put subGroups in order and insert ones that are missing
-                //chartData = [];
-                chartSet.forEach(function (chartName) {
-                    chartData = [];
-
-                    subGroupSet.forEach(function (subGroupName) {
-                        var rawSubGroupObject = rawChartData[chartName][subGroupName];
-                        var newSubGroupObject = {
-                            key: subGroupName,
-                            values: []
+                        return {
+                            chart: key,
+                            maxpos: Math.max.apply(null, totalpos),
+                            minneg: Math.min.apply(null, totalneg)
                         };
-                        chartData.push(newSubGroupObject);
-                        mainGroupSet.forEach(function (mainGroupName) {
-                            var mainGroupQuantity = rawSubGroupObject[mainGroupName];
-                            if (mainGroupQuantity == undefined) {
-                                mainGroupQuantity = 0;
-                            }
+                    });
+                    var rawChartData = d3.nest().key(function (d) {
+                        chartSet.add(d[chartColumn].replace(/\s+/g, ''));
+                        return d[chartColumn].replace(/\s+/g, '');
+                    }).key(function (d) {
+                        //change quantity to an int for convenience right off the bat
+                        d[quantityColumn] = parseInt(d[quantityColumn]);
+                        var subGroupName = d[subGroupColumn];
+                        subGroupSet.add(subGroupName);
+                        return subGroupName;
+                    }).key(function (d) {
+                        var mainGroupName = d[mainGroupColumn];
+                        if (!mainGroupSet.has(mainGroupName)) {
+                            mainGroupSet.add(mainGroupName);
+                            totalsForEachMainGroup[mainGroupName] = 0;
+                        }
+                        totalsForEachMainGroup[mainGroupName] += d[quantityColumn];
+                        return mainGroupName;
+                    }).rollup(function (objectArray) {
+                        var oneRow = objectArray[0];
+                        return oneRow[quantityColumn];
+                    }).map(data);
+                    //need to run through rawChartData and put subGroups in order and insert ones that are missing
+                    //chartData = [];
+                    chartSet.forEach(function (chartName) {
+                        chartData = [];
 
-                            newSubGroupObject.values.push({
-                                label: mainGroupName,
-                                value: mainGroupQuantity,
-                                percentage: mainGroupQuantity / totalsForEachMainGroup[mainGroupName],
-                                groupmax: totalsForEachMainGroup[mainGroupName]
+                        subGroupSet.forEach(function (subGroupName) {
+                            var rawSubGroupObject = rawChartData[chartName][subGroupName];
+                            var newSubGroupObject = {
+                                key: subGroupName,
+                                values: []
+                            };
+                            chartData.push(newSubGroupObject);
+                            mainGroupSet.forEach(function (mainGroupName) {
+                                var mainGroupQuantity = rawSubGroupObject[mainGroupName];
+                                if (mainGroupQuantity == undefined) {
+                                    mainGroupQuantity = 0;
+                                }
+
+                                newSubGroupObject.values.push({
+                                    label: mainGroupName,
+                                    value: mainGroupQuantity,
+                                    percentage: mainGroupQuantity / totalsForEachMainGroup[mainGroupName],
+                                    groupmax: totalsForEachMainGroup[mainGroupName]
+                                });
                             });
-                        });
-                        //end mainGroups foreach
-                    });//end subGroupSet forEach
+                            //end mainGroups foreach
+                        });//end subGroupSet forEach
 
 
-                    var completeChart = {
-                        chartName: chartName,
-                        data: chartData,
-                        maxVal: $.grep(findMax, function (e) {
-                            return e.chart === chartName
-                        })[0].maxpos,
-                        minVal: $.grep(findMax, function (e) {
-                            return e.chart === chartName
-                        })[0].minneg,
-                    };
-                    chartDataContainer.push(completeChart);
-                }); //end chartSet forEach
+                        var completeChart = {
+                            chartName: chartName,
+                            data: chartData,
+                            maxVal: $.grep(findMax, function (e) {
+                                return e.chart === chartName
+                            })[0].maxpos,
+                            minVal: $.grep(findMax, function (e) {
+                                return e.chart === chartName
+                            })[0].minneg,
+                        };
+                        chartDataContainer.push(completeChart);
+                    }); //end chartSet forEach
 
 
-                readInDataCallback();
+                    readInDataCallback();
+                });
             });
-});
             //end d3.csv
         }
 

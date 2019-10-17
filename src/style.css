@@ -9,6 +9,9 @@ body {
 .right-border {
 	border-right: 1px dashed #333;
 }
+.left-border {
+	border-left: 1px dashed #333;
+}
 
 .vert-centered {display: table-cell;vertical-align: middle;text-align: center;}
 

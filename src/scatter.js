@@ -32,8 +32,8 @@ function scatter(id,indx) {
                 $.each(data, function (key, val) {
 
                     if (data["scenarios"][scenario].visualizations != undefined) {
-                        if (data["scenarios"][scenario].visualizations["Scatter"][configIndx].file) {
-                            fileName = data["scenarios"][scenario].visualizations["Scatter"][configIndx].file;
+                        if (data["scenarios"][scenario].visualizations["Scatter"][indx].file) {
+                            fileName = data["scenarios"][scenario].visualizations["Scatter"][indx].file;
                         }
                     }
                 });

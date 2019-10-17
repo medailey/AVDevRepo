@@ -4,7 +4,7 @@
 	<title></title>
 	<meta charset="UTF-8">
 	<script src="../bower_components/jquery/dist/jquery.min.js"></script>
-	<script  src="../bower_components/jqueryui/jquery-ui.min.js"></script>
+	<script defer src="../bower_components/jqueryui/jquery-ui.min.js"></script>
 	<script defer src="../bower_components/spectrum/spectrum.js"></script>
 	<script  src="../bower_components/chosen/chosen.jquery.js"></script>
 	<script  src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -27,11 +27,12 @@
     <script  type="text/javascript" src="scatter.js"></script>
 	<script  type="text/javascript" src="chord.js"></script>
 	<script  type="text/javascript" src="points_of_interest_map.js"></script>
+    <script  type="text/javascript" src="radar.js"></script>
 	<script defer type="text/javascript" src="mapper.js"></script>
 
 	<script type="text/javascript" src="grouped_barchart_data.js"></script>
 
-	<script defer type="text/javascript" src="radar-chart-nbremer.js"></script>
+	<script  type="text/javascript" src="radar-chart-nbremer.js"></script>
 
 	<link rel="shortcut icon" href="">
 	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
@@ -230,14 +231,62 @@ $(document).ready(function () {
                         });
                     });
                 }
+                if(key == "RadarCharts"){
+                    $.each(value, function (k, v) {
+                        addMyTab("radar.html", "radar", v.name,k, function () {
+                            var chartname = v.name.replace(/\s/g, "");
+                            $('#radar_tab').attr('id', chartname + '_id');
+                            $('#radar').attr('id', chartname + '-div');
+                            $('#radar-sidebar').attr('id', chartname + '-sidebar');
+                            $('#radar-text-area').attr('id', chartname + '-text-area');
+                            $('#radar-legend').attr('id', chartname + '-legend');
+                            $('#radar-main').attr('id', chartname + '-main');
+                            $('#radar-chart-container').attr('id', chartname + '-chart-container');
+                            $('#' + chartname + '-div').show();
+                        });
+                    });
+                }
+                if(key == "BarMap"){
+                    $.each(value, function (k, v) {
+                        addMyTab("barchartmap.html", "barchart_and_map", v.name,k, function () {
+                            var chartname = v.name.replace(/\s/g, "");
+                            $('#barchartmap_tab').attr('id', chartname + '_id');
+                            $('#mode-share-by-county').attr('id', chartname + '-div');
+                            $('#mode-share-by-county-stacked').attr('id', chartname + '-stacked');
+                            $('#mode-share-by-county-chart').attr('id', chartname + '-chart');
+                            $('#mode-share-by-county-classification-label').attr('id', chartname + '-classification-label');
+                            $('#mode-share-by-county-current-trip-mode-zones').attr('id', chartname + '-current-trip-mode-zones');
+                            $('#mode-share-by-county-current-trip-mode-bubbles').attr('id', chartname + '-current-trip-mode-bubbles');
+                            $('#mode-share-by-county-classification').attr('id', chartname + '-classification');
+                            $('#mode-share-by-county-checkboxes').attr('id', chartname + '-checkboxes');
+                            $('#mode-share-by-county-map').attr('id', chartname + '-map');
+                            $('#mode-share-by-county-pallette').attr('id', chartname + '-pallette');
+                            $('#mode-share-by-county-tools').attr('id', chartname + '-tools');
+                            $('#mode-share-by-county-zones').attr('id', chartname + '-zones');
+                            $('#mode-share-by-county-bubbles').attr('id', chartname + '-bubbles');
+                            $('#mode-share-by-county-bubble-color').attr('id', chartname + '-bubble-color');
+                            $('#mode-share-by-county-bubble-size').attr('id', chartname + '-bubble-size');
+                            $('#mode-share-by-county-stroke').attr('id', chartname + '-stroke');
+                            $('#mode-share-by-county-naColor').attr('id', chartname + '-naColor');
+                            $('#mode-share-by-county-slider').attr('id', chartname + '-slider');
+                            $('#mode-share-by-county-update-map').attr('id', chartname + '-update-map');
+                            $('#mode-share-by-county-start-cycle-map').attr('id', chartname + '-start-cycle-map');
+                            $('#mode-share-by-county-stop-cycle-map').attr('id', chartname + '-stop-cycle-map');
+                            $('#mode-share-by-county-cycle-frequency').attr('id', chartname + '-cycle-frequency');
+                            $('#' + chartname + '-div').show();
+                        });
+                    });
+                }
             });
         }
-	}).complete(function() {
-        $('#the_tabs a').click(function (link) {
+	}).done(function() {
+        $('#the_tabs a').on('click',function (link) {
             eval(link.currentTarget.getAttribute("funct"))
             console.log(link.currentTarget.getAttribute("funct"));
         })
-
+  var shownTabs = $('li[role="presentation"] a');
+		if(shownTabs.length>0)
+		    setTimeout(function() {shownTabs[0].click()},100);
     });
 
 	function addMyTab(filename,chartype,name,indx,callback) {

@@ -41,6 +41,9 @@ function timeuse (id,indx) {
              fileName = data["scenarios"][scenario].visualizations["TimeUse"][indx].file;
 
          }
+         if (data["scenarios"][scenario].visualizations["TimeUse"][indx].config) {
+            configName = data["scenarios"][scenario].visualizations["TimeUse"][indx].config;
+        }
      }
 
  }).complete(function(){

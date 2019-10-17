@@ -62,7 +62,7 @@ function pointofinterest_and_map (id,indx) {
     var barsWrapRectSelector = "#" + barsWrapRectId;
     var pointSet;
     var currentCounty = "";
-var maxLabelLength = 0;
+    var maxLabelLength = 0;
     var paletteRamps = d3.selectAll("#"+id+" .ramp");
     var pointsAll = [];
     $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
@@ -70,7 +70,7 @@ var maxLabelLength = 0;
     //start off chain of initialization by reading in the data
     function readInDataCallback() {
         createMap(function () {
-            console.log("createMap for POIT callback")
+            console.log("createMap for POI callback")
         });
         setDataSpecificDOM();
         svgChart = d3.select(chartSelector);
@@ -88,34 +88,50 @@ var maxLabelLength = 0;
     function getConfigSettings(callback) {
         if (showChartOnPage) {
             $.getJSON(dataLocation + "region.json", function (data) {
+                var configName = "Default";
+                $.each(data, function (key, val) {
+
+                    if (data["scenarios"][scenario].visualizations != undefined) {
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].file) {
+                            fileName = data["scenarios"][scenario].visualizations["POIMap"][indx].file;
+                        }
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].config) {
+                            configName = data["scenarios"][scenario].visualizations["POIMap"][indx].config;
+                        }
+                    }
+                });
+                var configSettings = data["POIMap"][configName];
                 $.each(data, function (key, val) {
                     if (key == "CenterMap")
                         CENTER_LOC = val;
-                    if (key == "POIMap") {
-                        $.each(val, function (opt, value) {
-                            if (opt == "RotateLabels") {
-                                ROTATELABEL = value;
-                            }
-                            if (opt == "BarSpacing") {
-                                BARSPACING = value;
-                            }
-                            if (opt == "LegendTitle") {
-                                $('.legendtitle').html(value);
-                            }
-
-                        })
-                    }
-                    if (key == "scenarios" && Array.isArray(val)) {
-                        $.each(val, function (k, v) {
-                            if (v.name === abmviz_utilities.GetURLParameter("scenario") && v.CenterMap) {
-                                CENTER_LOC = v.CenterMap;
-                            }
-                        });
-                    }
                 });
+
+
+                $.each(configSettings, function (opt, value) {
+                    if (opt == "RotateLabels") {
+                        ROTATELABEL = value;
+                    }
+                    if (opt == "BarSpacing") {
+                        BARSPACING = value;
+                    }
+                    if (opt == "LegendTitle") {
+                        $('.legendtitle').html(value);
+                    }
+                    if (opt == "CenterMap") {
+                        CENTER_LOC = value;
+                    }
+
+                })
+
+            }).complete(function(){
+            if(url.indexOf(fileName)==-1) {
+                url += "/" + fileName;
+            }
                 callback();
             });
-        }
+
+            }
+
     }
 
     function createEmptyChart() {
@@ -362,32 +378,7 @@ var maxLabelLength = 0;
                 var tooltipval = selectedGrping;
                 var zoomLevel = map.getZoom();
                 var diff = myZoom.start - zoomLevel;
-                //var radiusMultiplier = parseInt($("#poi-by-group-point-size").val());
-                //var radius = ((radiusMultiplier * 1000) / zoomLevel);
-                //radius = radius + (zoomLevel <= 9 ? 100 : 0);
-                //zoomLevel <= 9 ? 450.0 : zoomLevel > 9 ? 350 : 25.0;
-               // var circle = new L.Circle([poiData[d].LAT, poiData[d].LNG], {radius: radius}).addTo(map);
-                /*var rect = L.rectangle(circle.getBounds(), {
-                    color: pointColor,
-                    weight: 4,
-                    fillOpacity: 1.0
-                }).bindPopup("<div  ><table style='width:100%;'><thead><tr><td colspan='3'><strong class='x-value'>" + d + "</strong></td></tr></thead><tbody><tr><td class='key'><strong>Group</strong>: " + selectedGroup + " " + "</td></tr><tr><td class='value'> <strong>Value</strong>: " + tooltipval.value.toLocaleString() + "</td></tr></tbody></table></div>", {
-                    minWidth: 130,
-                    maxWidth: 250
-                });
-                //.bindTooltip("<div style='text-align:center'><span style='font-size:'" + d + "</br>" + tooltipval.value + "</div>");
 
-                rect.on('mouseover', function (e) {
-                    this.openPopup();
-                });
-                rect.on('mouseout', function (e) {
-                    this.closePopup();
-                });
-                rect.properties = {};
-                rect.properties["NAME"] = d;
-
-                highlightBoxes.push(rect);
-*/
                 var circleMarker = L.circleMarker(L.latLng(poiData[d].LAT, poiData[d].LNG), circleStyle).bindPopup("<div  ><table style='width:100%;'><thead><tr><td colspan='3'><strong class='x-value'>" + d + "</strong></td></tr></thead><tbody><tr><td class='key'><strong>Group</strong>: " + selectedGroup + " " + "</td></tr><tr><td class='value'> <strong>Value</strong>: " + tooltipval.value.toLocaleString() + "</td></tr></tbody></table></div>", {
                     minWidth: 130,
                     maxWidth: 250
@@ -447,7 +438,7 @@ var maxLabelLength = 0;
     function initializeMuchOfUI() {
 
 
-        $("#poi-by-group-stacked").click(function () {
+        $("#"+id+"-stacked").click(function () {
             extNvd3Chart.stacked(this.checked);
             var test = extNvd3Chart.groupSpacing();
             if (this.checked) {
@@ -495,18 +486,6 @@ var maxLabelLength = 0;
             //add delay to redrawMap so css has change to updates
             setTimeout(redrawMap, CSS_UPDATE_PAUSE);
         });        //end on click for ramp/palette
-
-        //Logic fr cycling through the maps
-        //end
-        $("#"+id+"-current-trip-mode-bubbles").change(function () {
-            updateCurrentTripModeOrClassification();
-            redrawMap();
-        });
-
-        $("#"+id+"-classification").change(function () {
-            //updateCurrentTripModeOrClassification();
-            redrawMap();
-        });
 
         $("#"+id+"-bubble-color").spectrum({
             color: bubbleColor,
