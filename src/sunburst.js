@@ -1,5 +1,7 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object sunburst will contain functions and variables that must be accessible from elsewhere
+var SunburstChart = {
+sunburst:
 function sunburst(id,indx) {
 	"use strict";
 	var url = "../data/" +abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") ;
@@ -442,4 +444,4 @@ function sunburst(id,indx) {
 	//return only the parts that need to be global
 	return {};
 
-}; //end encapsulating IIFE
+} }; //end encapsulating IIFE

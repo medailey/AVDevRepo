@@ -1,5 +1,7 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object timeuse will contain functions and variables that must be accessible from elsewhere
+var TimeuseChart = {
+    timeuse:
 function timeuse (id,indx) {
     "use strict";
     var region = abmviz_utilities.GetURLParameter("region");
@@ -295,4 +297,4 @@ function timeuse (id,indx) {
     }
     //return only the parts that need to be global
     return {};
-} //end encapsulating IIFEE
+} }//end encapsulating IIFEE

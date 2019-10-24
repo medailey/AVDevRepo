@@ -1,5 +1,7 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object scatter will contain functions and variables that must be accessible from elsewhere
+var ScatterChart = {
+    scatter:
 function scatter(id,indx) {
     "use strict";
 	var region = abmviz_utilities.GetURLParameter("region");
@@ -268,4 +270,4 @@ function scatter(id,indx) {
         $('#'+id+'-div .scatter-chart-xaxis-title').text(xAxisColumn);
     };
     //readInData();
-};
+} };

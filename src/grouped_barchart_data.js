@@ -1,7 +1,7 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object barchart will contain functions and variables that must be accessible from elsewhere
-
-
+var BarChartGrp = {
+barchart:
 function barchart(id,indx) {
     "use strict";
     var chartData;
@@ -362,4 +362,4 @@ var chartDataContainer=[];
         createGrouped();
     });
     return {};
-};//end encapsulating IIFEE
+} };//end encapsulating IIFEE

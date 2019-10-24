@@ -16,25 +16,24 @@
         "BarMap": [
           {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"}
         ],
-        "RadarCharts": [{"name":"Radar","config":"Default"}],
-        "Sunburst": [],
-        "3DMap": [],
-        "GrpBar": [],
-        "TimeUse": []
+        "RadarCharts": [{"name":"Radar","config":"Default", "file":"RadarChartsData.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default", "file":"TreeMapData.csv"}],
+        "3DMap": [{"name":"3D Map","config":"Default", "file":"3DAnimatedMapData.csv"}],
+        "GroupedCharts": [{"name":"Group BarChart","config":"Default", "file":"BarChartData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default", "file":"TimeUseData.csv"}]
       }
     },
     "BS2015": {
       "title": "- Base year 2015,127",
       "visualizations": {
         "BarMap": [
-          {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"
-          }
+          {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"}
         ],
-       "RadarCharts": [{"name":"Radar","config":"Default"}],
-        "Sunburst": [],
-        "3DMap": [],
-        "GrpBar": [],
-        "TimeUse": []
+        "RadarCharts": [{"name":"Radar","config":"Default", "file":"RadarChartsData.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default", "file":"TreeMapData.csv"}],
+        "3DMap": [{"name":"3D Map","config":"Default", "file":"3DAnimatedMapData.csv"}],
+        "GroupedCharts": [{"name":"Group BarChart","config":"Default", "file":"BarChartData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default", "file":"TimeUseData.csv"}]
       }
     },
     "2020RC": {
@@ -43,11 +42,11 @@
         "BarMap": [
           {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"}
         ],
-        "RadarCharts": [{"name":"Radar","config":"Default"}],
-        "Sunburst": [],
-        "3DMap": [],
-        "GrpBar": [],
-        "TimeUse": []
+        "RadarCharts": [{"name":"Radar","config":"Default", "file":"RadarChartsData.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default", "file":"TreeMapData.csv"}],
+        "3DMap": [{"name":"3D Map","config":"Default", "file":"3DAnimatedMapData.csv"}],
+        "GroupedCharts": [{"name":"Group BarChart","config":"Default", "file":"BarChartData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default", "file":"TimeUseData.csv"}]
       }
     },
     "2035RC": {
@@ -56,11 +55,11 @@
         "BarMap": [
           {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"}
         ],
-        "RadarCharts": [{"name":"Radar","config":"Default"}],
-        "Sunburst": [],
-        "3DMap": [],
-        "GrpBar": [],
-        "TimeUse": []
+        "RadarCharts": [{"name":"Radar","config":"Default", "file":"RadarChartsData.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default", "file":"TreeMapData.csv"}],
+        "3DMap": [{"name":"3D Map","config":"Default", "file":"3DAnimatedMapData.csv"}],
+        "GroupedCharts": [{"name":"Group BarChart","config":"Default", "file":"BarChartData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default", "file":"TimeUseData.csv"}]
       }
     },
     "2050RC": {
@@ -69,11 +68,11 @@
         "BarMap": [
           {"name": "BarChart","config": "Default","file": "BarChartAndMapData.csv"}
         ],
-        "RadarCharts": [{"name":"Radar","config":"Default"}],
-        "Sunburst": [],
-        "3DMap": [],
-        "GrpBar": [],
-        "TimeUse": []
+        "RadarCharts": [{"name":"Radar","config":"Default", "file":"RadarChartsData.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default", "file":"TreeMapData.csv"}],
+        "3DMap": [{"name":"3D Map","config":"Default", "file":"3DAnimatedMapData.csv"}],
+        "GroupedCharts": [{"name":"Group BarChart","config":"Default", "file":"BarChartData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default", "file":"TimeUseData.csv"}]
       }
     }
   },
@@ -100,7 +99,17 @@
       "ChartWidthOverride": []
     }
   },
-  "ThreeDMap":{
+  "TimeUse": {
+    "Default":{
+
+    }
+  },
+  "Sunburst": {
+    "Default":{
+
+    }
+  },
+  "3DMap":{
     "Default": {
       "ShowPeriodsAsDropdown": false,
       "DataHasPeriods": true,

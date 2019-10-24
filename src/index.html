@@ -7,8 +7,9 @@
 	<script defer src="../bower_components/jqueryui/jquery-ui.min.js"></script>
 	<script defer src="../bower_components/spectrum/spectrum.js"></script>
 	<script  src="../bower_components/chosen/chosen.jquery.js"></script>
-	<script  src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script  defer src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script  src="../bower_components/d3/d3.js"></script>
+    <script  src="../bower_components/d3/d3-tip.js"></script>
 
 	<script  src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.3.0/d3-legend.js" charset="utf-8"></script>
 	<script  src="../bower_components/nvd3/build/nv.d3.js"></script>
@@ -20,14 +21,16 @@
 	<script  src="../vendor/TweenMax.min.js"></script>
 	<script  src="../vendor/vizicities.js"></script>
 	<script type="text/javascript" src="../abmviz_utilities.js"></script>
-
+    <script defer type="text/javascript"  src="../bower_components/bootstrap/js/bootstrap-multiselect.js"></script>
 	<script  type="text/javascript" src="grouped_barchart.js"></script>
 	<script  type="text/javascript" src="timeuse.js"></script>
     <script  type="text/javascript" src="sunburst.js"></script>
     <script  type="text/javascript" src="scatter.js"></script>
 	<script  type="text/javascript" src="chord.js"></script>
+    <script  type="text/javascript" src="barchart_and_map.js"></script>
 	<script  type="text/javascript" src="points_of_interest_map.js"></script>
     <script  type="text/javascript" src="radar.js"></script>
+    <script  type="text/javascript" src="three3d.js "></script>
 	<script defer type="text/javascript" src="mapper.js"></script>
 
 	<script type="text/javascript" src="grouped_barchart_data.js"></script>
@@ -36,6 +39,7 @@
 
 	<link rel="shortcut icon" href="">
 	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap-multiselect.css"/>
 	<link rel="stylesheet" href="../bower_components/spectrum/spectrum.css" />
 	<link rel="stylesheet" href="../bower_components/jqueryui/themes/base/jquery-ui.min.css" />
 	<link rel="stylesheet" href="../bower_components/chosen/chosen.css" />
@@ -136,8 +140,8 @@ $(document).ready(function () {
             $.each(visuals, function (key, value) {
                 if (key == "GroupedCharts") {
                     $.each(value, function (k, v) {
-                        addMyTab("barchart.html", "barchart", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("barchart.html", "BarChartGrp.barchart", v.name,k,"bc_"+v.name.replace(/\s/g, ""), function () {
+                            var chartname = "bc_"+v.name.replace(/\s/g, "");
                             $('#grouped_tab').attr('id', chartname + '_id');
                             $('#grouped-barchart-div').attr('id', chartname + '-div');
                             $('#grouped-barchart-pivot-axes').attr('id', chartname + '-pivot-axes');
@@ -146,14 +150,14 @@ $(document).ready(function () {
                             $('#grouped-barchart-toggle-stacked').attr('id', chartname + '-toggle-stacked');
                             $('#grouped-barmain').attr('id', chartname + '-barmain');
                             $('#grouped-bar-container').attr('id', chartname + '-container');
-                            $('#' + v.name + '-div').show();
+                            $('#' + chartname + '-div').show();
                         });
                     });
                 }
                 if (key == "TimeUse") {
                     $.each(value, function (k, v) {
-                        addMyTab("timeuse.html", "timeuse", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("timeuse.html", "TimeuseChart.timeuse", v.name,k,'tu_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'tu_'+v.name.replace(/\s/g, "");
                             $('#timeuse_tab').attr('id', chartname + '_id');
                             $('#timeuse').attr('id', chartname + '-div');
                             $('#timeuse-sidebar').attr('id', chartname + '-sidebar');
@@ -161,14 +165,14 @@ $(document).ready(function () {
                             $('#timeuse-legend').attr('id', chartname + '-legend');
                             $('#timeuse-main').attr('id', chartname + '-main');
                             $('#timeuse-chart').attr('id', chartname + '-chart');
-                            $('#' + v.name + '-div').show();
+                            $('#' + chartname + '-div').show();
                         });
                     });
                 }
                 if (key == "Sunburst") {
                     $.each(value, function (k, v) {
-                        addMyTab("sunburst.html", "sunburst", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("sunburst.html", "SunburstChart.sunburst", v.name,k,'sb_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'sb_'+v.name.replace(/\s/g, "");
                             $('#sunburst_tab').attr('id', chartname + '_id');
                             $('#sunburst').attr('id', chartname + '-div');
                             $('#sunburst-legend').attr('id', chartname + '-legend');
@@ -178,14 +182,14 @@ $(document).ready(function () {
                             $('#sunburst-percentage').attr('id', chartname + '-percentage');
                             $('#sunburst-current-node').attr('id', chartname + '-current-node');
                             $('#sunburst-current-node-value').attr('id', chartname + '-current-node-value');
-                            $('#' + v.name + '-div').show();
+                            $('#' + chartname + '-div').show();
                         });
                     });
                 }
                 if (key == "Scatter") {
                     $.each(value, function (k, v) {
-                        addMyTab("scatter.html", "scatter", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("scatter.html", "ScatterChart.scatter", v.name,k,'sc_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'sc_'+v.name.replace(/\s/g, "");
                             $('#scatter_tab').attr('id', chartname + '_id');
                             $('#scatter').attr('id', chartname + '-div');
                             $('#scatter-tooltip').attr('id', chartname + '-tooltip');
@@ -197,8 +201,8 @@ $(document).ready(function () {
                 }
                 if (key == "Chord") {
                     $.each(value, function (k, v) {
-                        addMyTab("chord.html", "chord", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("chord.html", "ChordChart.chord", v.name,k,'ch_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'ch_'+v.name.replace(/\s/g, "");
                             $('#chord_tab').attr('id', chartname + '_id');
                             $('#chord').attr('id', chartname + '-div');
                             $('#chord-tooltip').attr('id', chartname + '-tooltip');
@@ -213,8 +217,8 @@ $(document).ready(function () {
                 }
                 if(key == "POIMap"){
                     $.each(value, function (k, v) {
-                        addMyTab("pointofinterest.html", "pointofinterest_and_map", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("pointofinterest.html", "POIMap.pointofinterest_and_map", v.name,k,'poi_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'poi_'+v.name.replace(/\s/g, "");
                             $('#poimap_tab').attr('id', chartname + '_id');
                             $('#poi-by-group').attr('id', chartname + '-div');
                             $('#poi-by-group-stacked').attr('id', chartname + '-stacked');
@@ -227,14 +231,15 @@ $(document).ready(function () {
                             $('#poi-by-group-emptydiv').attr('id', chartname + '-emptydiv');
                             $('#poi-by-group-map').attr('id', chartname + '-map');
                             $('#poi-by-group-pallette').attr('id', chartname + '-pallette');
+                            $('#poi-by-group-filter-span').attr('id', chartname + '-filter-span');
                             $('#' + chartname + '-div').show();
                         });
                     });
                 }
                 if(key == "RadarCharts"){
                     $.each(value, function (k, v) {
-                        addMyTab("radar.html", "radar", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("radar.html", "RadarData.radar", v.name,k,'rc_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'rc_'+v.name.replace(/\s/g, "");
                             $('#radar_tab').attr('id', chartname + '_id');
                             $('#radar').attr('id', chartname + '-div');
                             $('#radar-sidebar').attr('id', chartname + '-sidebar');
@@ -246,10 +251,40 @@ $(document).ready(function () {
                         });
                     });
                 }
+                if(key == "3DMap") {
+                    $.each(value, function (k, v) {
+                        addMyTab("threed.html", "ThreeDMap.three3dFunction", v.name, k,'td_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'td_'+v.name.replace(/\s/g, "");
+                            $('#three3d_tab').attr('id', chartname + '_id');
+                            $('#three3d').attr('id', chartname + '-div');
+                            $('#three3d-current-period').attr('id', chartname + '-current-period');
+                            $('#three3d-controls').attr('id', chartname + '-controls');
+                            $('#three3d-centroids').attr('id', chartname + '-centroids');
+                            $('#three3d-classification-label').attr('id', chartname + '-classification-label');
+                            $('#three3d-classification').attr('id', chartname + '-classification');
+                            $('#three3d-period-id').attr('id', chartname + '-period-id');
+                            $('#three3d-period-label').attr('id', chartname + '-period-label');
+                            $('#three3d-period').attr('id', chartname + '-period');
+                            $('#three3d-map').attr('id', chartname + '-map');
+                            $('#opacityRange').attr('id', chartname + '-opacityRange');
+                            $('#opacityval').attr('id', chartname + '-opacityval');
+                            $('#three3d-naColor').attr('id', chartname + '-naColor');
+                            $('#three3d-slider').attr('id', chartname + '-slider');
+                            $('#three3d-slider-time').attr('id', chartname + '-slider-time');
+                            $('#three3d-update-map').attr('id', chartname + '-update-map');
+                            $('#three3d-start-cycle-map').attr('id', chartname + '-start-cycle-map');
+                            $('#three3d-stop-cycle-map').attr('id', chartname + '-stop-cycle-map');
+                            $('#three3d-redraw').attr('id', chartname + '-redraw');
+                            $('#three3d-cycle-frequency').attr('id', chartname + '-cycle-frequency');
+
+                            $('#' + chartname + '-div').show();
+                        });
+                    });
+                }
                 if(key == "BarMap"){
                     $.each(value, function (k, v) {
-                        addMyTab("barchartmap.html", "barchart_and_map", v.name,k, function () {
-                            var chartname = v.name.replace(/\s/g, "");
+                        addMyTab("barchartmap.html", "BarChartMap.barchart_and_map", v.name,k,'bm_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'bm_'+v.name.replace(/\s/g, "");
                             $('#barchartmap_tab').attr('id', chartname + '_id');
                             $('#mode-share-by-county').attr('id', chartname + '-div');
                             $('#mode-share-by-county-stacked').attr('id', chartname + '-stacked');
@@ -289,8 +324,8 @@ $(document).ready(function () {
 		    setTimeout(function() {shownTabs[0].click()},100);
     });
 
-	function addMyTab(filename,chartype,name,indx,callback) {
-        var newEl = "<li role='presentation'><a href='#" + name.replace(/\s/g, "") + "_id' role='tab' data-toggle='tab' funct='" + chartype + "(\"" + name.replace(/\s/g, "") + "\"," + indx + ")' >" + name + "</a></li>";
+	function addMyTab(filename,chartype,name,indx,idname,callback) {
+        var newEl = "<li role='presentation'><a href='#" + idname + "_id' role='tab' data-toggle='tab' funct='" + chartype + "(\"" + idname + "\"," + indx + ")' >" + name + "</a></li>";
         $(newEl).insertBefore("#leftnavbtn");
         $.get("templates/" + filename, function (data) {
             $('.tab-content').append(data);

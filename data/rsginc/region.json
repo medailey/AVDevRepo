@@ -17,24 +17,13 @@
       "title": "- Washington DC INRIX Processing",
       "visualizations": {
         "BarMap": [
-          {
-            "name": "BarChart",
-            "file": "BarChartAndMapData.csv",
-            "config": "Default"
-          }
-
+          {"name": "BarChart","file": "BarChartAndMapData.csv","config": "Default"}
         ],
         "RadarCharts": [
-          {
-            "name": "ThisBeMyrRadars",
-            "file": "RadarChartsData.csv",
-            "config": "Default"
-          }
+          {"name": "ThisBeMyrRadars","file": "RadarChartsData.csv","config": "Default"}
         ],
         "Chord": [
-          {
-            "name": "Thisismychordcha rt"
-          }
+          {"name": "Thisismychordcha rt","file":"ChordData.csv","config":"Default"}
         ]
       }
     }

@@ -1,5 +1,6 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object grouped_barchart will contain functions and variables that must be accessible from elsewhere
+
 function grouped_barchart (id, data,options,divid) {
 	"use strict";
 	var chartDataContainer=[];
@@ -43,14 +44,14 @@ function grouped_barchart (id, data,options,divid) {
 	var barsWrapRectSelector = "#" + barsWrapRectId;
 	var showChartOnPage = true;
 	$("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
-	//start off chain of initialization by reading in the data	
+	//start off chain of initialization by reading in the data
     svgChart = d3.select(id);
     //setDataSpecificDOM();
 	createEmptyChart(runAfterChartCreated);
 	//initializeMuchOfUI();
 
 
-	//start off chain of initialization by reading in the data	
+	//start off chain of initialization by reading in the data
 
 function runAfterChartCreated() {
     if ($("#"+divid+"-toggle-horizontal").prop('checked')) {

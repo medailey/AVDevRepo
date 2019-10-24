@@ -1,12 +1,14 @@
 //encapsulate all code within a IIFE (Immediately-invoked-function-expression) to avoid polluting global namespace
 //global object chord will contain functions and variables that must be accessible from elsewhere
+var ChordChart = {
 
+chord:
 function chord (id,indx) {
     "use strict";
     var region = abmviz_utilities.GetURLParameter("region");
     var dataLocation = localStorage.getItem(region);
     var fileName = "ChordData.csv";
-    var url = dataLocation + abmviz_utilities.GetURLParameter("scenario") ;
+    var url = dataLocation + abmviz_utilities.GetURLParameter("scenario");
     var scenario = abmviz_utilities.GetURLParameter("scenario");
     var mainGroupColumnName;
     var subGroupColumnName;
@@ -56,7 +58,7 @@ function chord (id,indx) {
     var SCENARIO_FOCUS = false;
     var scenarioPolyFile;
     var fill = d3.scale.category20();
-    var chartOnPage = $('#'+id+'_circle').length ==0;
+    var chartOnPage = $('#' + id + '_circle').length == 0;
     var circlesLayerGroup;
     var formatPercent = d3.format(".1%");
     var showGrpPercent = false;
@@ -95,7 +97,7 @@ function chord (id,indx) {
                     if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
                         SCENARIO_FOCUS = true;
                         scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
-                        $('#'+id+'-by-district-map').before(" Focus Color: <input type='text' id='"+id+"-focus-color' style='display: none;' >  ");
+                        $('#' + id + '-by-district-map').before(" Focus Color: <input type='text' id='" + id + "-focus-color' style='display: none;' >  ");
                     }
                 }
                 var configSettings = data["Chord"][configName];
@@ -181,7 +183,7 @@ function chord (id,indx) {
 
             indexByName = {};
             nameByIndex = {};
-            var totalContainerWidth = $('#'+id+'-chart-container').width() - ($('#'+id+'-chart-container').width() * 0.2);
+            var totalContainerWidth = $('#' + id + '-chart-container').width() - ($('#' + id + '-chart-container').width() * 0.2);
             var outerRadius = totalContainerWidth / 2,
                 innerRadius = outerRadius - 130;
             height = totalContainerWidth - 50;
@@ -198,17 +200,17 @@ function chord (id,indx) {
                 .innerRadius(innerRadius)
                 .outerRadius(innerRadius + 20);
             var windwidth = totalContainerWidth;
-            d3.select('#'+id+'-chart-container').select("svg").remove();
-            d3.select('#'+id+'-dropdown-div').select("svg").remove();
-            var transForm = ($('#'+id+'-chart-container').width() / 2);
-            var svg = d3.select("#"+id+"-chart-container").append("svg:svg")
-                .attr("width", $('#'+id+'-chart-container').width())
+            d3.select('#' + id + '-chart-container').select("svg").remove();
+            d3.select('#' + id + '-dropdown-div').select("svg").remove();
+            var transForm = ($('#' + id + '-chart-container').width() / 2);
+            var svg = d3.select("#" + id + "-chart-container").append("svg:svg")
+                .attr("width", $('#' + id + '-chart-container').width())
                 .attr("height", height)
                 //.style("padding-left", "3%")
                 //style("padding-right", "3%")
                 .append("svg:g")
-                .attr("id", id+"_circle")
-                .attr("selector","chordcircle")
+                .attr("id", id + "_circle")
+                .attr("selector", "chordcircle")
                 .attr("transform", "translate(" + transForm + "," + height / 2 + ")");
             svg.append("circle")
                 .attr("r", r0 + 20);
@@ -284,7 +286,7 @@ function chord (id,indx) {
                 .attr("class", "group")
                 .on("mouseover", mouseover)
                 .on("mouseout", function (d) {
-                    d3.select('#'+id+'-tooltip').style("visibility", "hidden")
+                    d3.select('#' + id + '-tooltip').style("visibility", "hidden")
                 });
 
             var groupPath = g.append("path")
@@ -333,7 +335,7 @@ function chord (id,indx) {
                     return fill(d.source.index);
                 })
                 .attr("d", d3.svg.chord().radius(innerRadius)).on("mouseover", function (d) {
-                    d3.select("#"+id+"-tooltip")
+                    d3.select("#" + id + "-tooltip")
                         .style("visibility", "visible")
                         .html(chordTip(rdr(d)))
                         .style("top", function () {
@@ -351,7 +353,7 @@ function chord (id,indx) {
 
                 })
                 .on("mouseout", function (d) {
-                    d3.select("#"+id+"-tooltip").style("visibility", "hidden")
+                    d3.select("#" + id + "-tooltip").style("visibility", "hidden")
                 });
 
             function chordTip(d, i) {
@@ -398,7 +400,7 @@ function chord (id,indx) {
             function mouseover(d, i) {
                 var name = nameByIndex[i].col;
                 console.log("source" + nameByIndex[i].col);
-                d3.select("#"+id+"-tooltip")
+                d3.select("#" + id + "-tooltip")
                     .style("visibility", "visible")
                     .html(groupTip(rdr(d)))
                     .style("top", function () {
@@ -431,11 +433,11 @@ function chord (id,indx) {
             var columns = width / 165;
             var lines = Number.parseInt(Math.ceil(size / columns));
             var legheight = 30 * lines;
-            var container = d3.select("#"+id+"-dropdown-div").append("svg")
+            var container = d3.select("#" + id + "-dropdown-div").append("svg")
 
                 .attr("width", width).attr("height", legheight).style('padding-top', "10px");
             if (!SCENARIO_FOCUS) {
-                $('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height() / 2 + "px");
+                $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
             }
             var dataL = 0;
             var offset = 100;
@@ -480,7 +482,8 @@ function chord (id,indx) {
                 showHideBlobs(d);
             })
         });
-              //end d3.csv
+
+        //end d3.csv
 
         function showHideBlobs(d) {
             legendHeadersShowHide[d] = !legendHeadersShowHide[d];
@@ -501,7 +504,7 @@ function chord (id,indx) {
 
         }
 
-         $("#"+id+"-focus-color").spectrum({
+        $("#" + id + "-focus-color").spectrum({
             color: focusColor,
             showInput: true,
             className: "full-spectrum",
@@ -665,7 +668,7 @@ function chord (id,indx) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
         }
         if (!SCENARIO_FOCUS) {
-            $('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height()/2 + "px");
+            $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
         }
     }
 
@@ -683,10 +686,10 @@ function chord (id,indx) {
         //var latlngcenter = JSON.parse(CENTER_LOC);
         //var lat=latlngcenter[0];
         //var lng=latlngcenter[1];
-        if(map != undefined){
+        if (map != undefined) {
             return;
         }
-        map = L.map(id+"-by-district-map", {
+        map = L.map(id + "-by-district-map", {
             minZoom: 6
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
@@ -812,8 +815,8 @@ function chord (id,indx) {
             }).complete(function () {
                 console.log(COUNTY_FILE + " complete");
             });
-             if (!SCENARIO_FOCUS) {
-                $('#'+id+'-chart-map').css("margin-top", $('#'+id+'-dropdown-div').height() / 2 + "px");
+            if (!SCENARIO_FOCUS) {
+                $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
             }
 
             //end geoJson of county layer
@@ -836,6 +839,6 @@ function chord (id,indx) {
     //createChord();
     window.addEventListener("resize", function () {
         console.log("Got resize event. Calling createTimeUse");
-       createChord();
+        createChord();
     });
-}; //end encapsulating IIFE
+} }; //end encapsulating IIFE
