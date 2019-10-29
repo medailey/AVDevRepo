@@ -9,56 +9,54 @@
 	<script src="bower_components/d3/d3.min.js"></script>
 	<script type="text/javascript">
 		$.getJSON( "config.json", function (data) {
+		    var defaultRegion = "";
            $.each(data, function (key, val) {
 
                var regiontitle = "";
                if(key =="regions") {
-                   $.each(val, function (k, v) {
+                   $.each(val, function (k, v,i) {
                        $('#scenarios').append('<div id="' + k + '_id' + '"></div>');
-                       var defaultSet = false;
+
+                       if(defaultRegion ==""){
+                           defaultRegion = k;
+                       }
+
                        var dataLocation;
                        dataLocation = v.datalocation;
-
+                        localStorage.setItem(k,dataLocation);
 
 
                            $.ajax({
                                method: 'GET',
                                url: dataLocation + "region.json",
                                dataType: 'json',
-                               success: function(reg){
-                                regiontitle = reg.FrontPageTitle;
-                            if (!defaultSet) {
-                                setdefault = true;
-                                var icon = reg.Icon;
-                                var logo = reg.Logo;
-                                var title = reg.Title;
-                                var linkURL = reg.LinkURL;
-                                var navbartitle = reg.NavbarTitle;
-                                $("link[rel*='icon']").attr("href", dataLocation + "/img/" + icon + "");
-                                $("title").text(title);
-                                $('#title_id').text(navbartitle);
-                                $('#navbarlink').attr("href", linkURL);
-                                $('#logo_id').attr("src", dataLocation + "/img/" + logo + "");
+                               success: function(reg) {
+                                   regiontitle = reg.FrontPageTitle;
+                                   if (defaultRegion== k) {
 
-                                defaultSet = true;
+                                       var icon = reg.Icon;
+                                       var logo = reg.Logo;
+                                       var title = reg.Title;
+                                       var linkURL = reg.LinkURL;
+                                       var navbartitle = reg.NavbarTitle;
+                                       $("link[rel*='icon']").attr("href", dataLocation + "/img/" + icon + "");
+                                       $("title").text(title);
+                                       $('#title_id').text(navbartitle);
+                                       $('#navbarlink').attr("href", linkURL);
+                                       $('#logo_id').attr("src", dataLocation + "/img/" + logo + "");
 
-                            }
-                               $('#' + k + '_id').append("<h4>" + regiontitle + "<img style='max-height: 25px;margin-left:2%;'src='" + dataLocation + "/img/" + reg.FrontPageGraphic + "" + "'/>" + "</h4>");
 
-                               $('#' + k + '_id').append("<ul id='" + k + "_scenarios' class='scenarios' style='margin-bottom: 25px;'> </ul>");
-
-                               $.each(reg.scenarios, function (key, value) {
-                                   if (Array.isArray(reg.scenarios)) {
-
-                                       $("#" + k + "_scenarios").append("<li><a class='scenariolink' href='src/index.html?region=" + k + "&scenario=" + value.name + "'>" + value.name + value.label + "</a></li>");
-
-                                   } else {
-                                       $("#" + k + "_scenarios").append("<li><a class='scenariolink' href='src/index.html?region=" + k + "&scenario=" + key + "'>" + key + value + "</a></li>");
                                    }
-                               });
+                                   $('#' + k + '_id').append("<h4>" + regiontitle + "<img style='max-height: 25px;margin-left:2%;'src='" + dataLocation + "/img/" + reg.FrontPageGraphic + "" + "'/>" + "</h4>");
+
+                                   $('#' + k + '_id').append("<ul id='" + k + "_scenarios' class='scenarios' style='margin-bottom: 25px;'> </ul>");
+
+                                   $.each(reg.scenarios, function (key, value) {
+                                       $("#" + k + "_scenarios").append("<li><a class='scenariolink' href='src/index.html?region=" + k + "&scenario=" + key + "'>" + key + value.title + "</a></li>");
+                                   });
 
 
-                           }
+                               }
                            });
 
 
@@ -66,21 +64,7 @@
                }
            });
         });
-var createCORSRequest = function(method, url) {
-  var xhr = new XMLHttpRequest();
-  if ("withCredentials" in xhr) {
-    // Most browsers.
-    xhr.open(method, url, true);
-  } else if (typeof XDomainRequest != "undefined") {
-    // IE8 & IE9
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
-  } else {
-    // CORS not supported.
-    xhr = null;
-  }
-  return xhr;
-};
+
 	</script>
 </head>
 

@@ -1,36 +1,34 @@
 {
-  "Title":"RSG - ActivityViz",
-  "CountyFile":"ZoneShape.json",
-  "ZoneFile":"ZoneShape.json",
-  "Icon":"RSG.ico",
-  "Logo":"RSG_400px.jpg",
-  "NavbarTitle":"RSG ActivityViz",
-  "LinkURL":"https://www.rsginc.com",
-  "CenterMap": [38.9072, -77.0369],
+  "Title": "RSG - ActivityViz",
+  "CountyFile": "ZoneShape.json",
+  "ZoneFile": "ZoneShape.json",
+  "Icon": "RSG.ico",
+  "Logo": "RSG_400px.jpg",
+  "NavbarTitle": "RSG ActivityViz",
+  "LinkURL": "https://www.rsginc.com",
+  "CenterMap": [
+    38.9072,
+    -77.0369
+  ],
   "FrontPageTitle": "RSG Demo Data",
   "FrontPageGraphic": "RSG_400px.jpg",
-  "scenarios":{
+  "scenarios": {
     "INRIX": {
-      "title":"- Washington DC INRIX Processing",
+      "title": "- Washington DC INRIX Processing",
       "visualizations": {
-        "GrpBar": [
-          {
-            "name": "BarChart",
-            "file": "BarChartAndMapData.csv",
-            "config": "Default"
-          }
-          ],
+        "BarMap": [
+          {"name": "BarChart","file": "BarChartAndMapData.csv","config": "Default"}
+        ],
         "RadarCharts": [
-          {
-            "name":"ThisBeMyrRadars",
-            "file": "RadarChartsData.csv",
-            "config": "Default"
-          }
+          {"name": "ThisBeMyrRadars","file": "RadarChartsData.csv","config": "Default"}
+        ],
+        "Chord": [
+          {"name": "Thisismychordcha rt","file":"ChordData.csv","config":"Default"}
         ]
       }
     }
   },
-  "RadarCharts":{
+  "RadarCharts": {
     "Default": {
       "NumberColsRadar": 3,
       "IndependentScale": [
@@ -39,29 +37,26 @@
       "ConvertAxesToPercent": true
     }
   },
-  "GrpMap": {
-    "Default": [
-      {
-        "CycleMapTools": false
-      }
-    ]
+  "BarMap": {
+    "Default": {
+      "CycleMapTools": false
+    }
   },
-  "GroupedCharts":{
-    "NumberColsGrouped":1,
-    "SwapLegendByDefault":true,
-    "ShowAsPercentByDefault":true,
-    "ShowAsVerticalByDefault":false,
-    "StackAllChartsByDefault":false,
-    "ChartWidthOverride": []
-  },
-  "ThreeDMap":{
-    "ShowPeriodsAsDropdown":false,
-    "DataHasPeriods":true,
-    "ZoneFile": []
+  "GroupedCharts": {
+    "Default": {
+      "NumberColsGrouped": 1,
+      "SwapLegendByDefault": true,
+      "ShowAsPercentByDefault": true,
+      "ShowAsVerticalByDefault": false,
+      "StackAllChartsByDefault": false,
+      "ChartWidthOverride": []
+    }
   },
   "Chord": {
-    "ZoneFilterFile": "cocs.csv",
-    "LabelSize": "14",
-    "LegendText": "Truck Flows"
+    "Default": {
+      "ZoneFilterFile": "cocs.csv",
+      "LabelSize": "14",
+      "LegendText": "Truck Flows"
     }
+  }
 }
