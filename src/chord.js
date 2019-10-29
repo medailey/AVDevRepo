@@ -252,12 +252,17 @@ function chord (id,indx) {
                     }
                     d.Total = (Number.parseFloat(total));
                     if (!(d[mainGroupColumnName] in indexByName)) {
+                        var uniqueRec = zoneFilterData.filters.find(x => x[zoneheaders[1]] == d[mainGroupColumnName]);
+                        if(uniqueRec)
+                            uniqueRec = uniqueRec.ID;
+                        else
+                            uniqueRec = 0;
                         nameByIndex[n] = {
                             name: d[mainGroupColumnName],
                             col: d[mainGroupColumnName],
                             index: n,
                             grptotal: Number.parseFloat(total),
-                            uniqueid: zoneFilterData.filters.find(x => x[zoneheaders[1]] == d[mainGroupColumnName]).ID
+                            uniqueid: uniqueRec
                     }
                         ;
 
@@ -265,7 +270,7 @@ function chord (id,indx) {
                             index: n++,
                             name: d[mainGroupColumnName],
                             grptotal: Number.parseFloat(total),
-                            uniqueid: zoneFilterData.filters.find(x => x[zoneheaders[1]] == d[mainGroupColumnName]).ID
+                            uniqueid: uniqueRec
                     }
                         ;
 
@@ -768,7 +773,6 @@ function chord (id,indx) {
                     throw ("Something is wrong. zoneDataFeature.QUANTITY is undefined. " + JSON.stringify(zoneDataFeatureOrigin));
                 }
                 color = fill(indexByName[findDistrict].index);
-                console.log(indexByName[findDistrict].index + " " + zoneDataFeatureOrigin);
                 featureGrpTotal = indexByName[findDistrict].grptotal;
             }
             //end if we have data for this trip mode
@@ -849,7 +853,6 @@ function chord (id,indx) {
             for (var i = 0; i < zoneTiles.features.length; i++) {
                 var feature = zoneTiles.features[i];
                 var zoneFiltered = zoneData.filter(function (d) {
-
                     return d.ID == feature.properties.id;
                 });
                 var featureZoneData = undefined;
