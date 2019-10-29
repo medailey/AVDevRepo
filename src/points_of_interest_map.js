@@ -714,10 +714,8 @@ function pointofinterest_and_map (id,indx) {
                     var filtername = name;
 
                     if (filtername == D.pointfilter) {
-
                         showThis = true;
                     }
-
                 });
             } else {
                 showThis = true;

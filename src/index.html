@@ -31,6 +31,7 @@
 	<script  type="text/javascript" src="points_of_interest_map.js"></script>
     <script  type="text/javascript" src="radar.js"></script>
     <script  type="text/javascript" src="three3d.js "></script>
+    <script  type="text/javascript" src="featurebarmap.js"></script>
 	<script defer type="text/javascript" src="mapper.js"></script>
 
 	<script type="text/javascript" src="grouped_barchart_data.js"></script>
@@ -247,6 +248,23 @@ $(document).ready(function () {
                             $('#radar-legend').attr('id', chartname + '-legend');
                             $('#radar-main').attr('id', chartname + '-main');
                             $('#radar-chart-container').attr('id', chartname + '-chart-container');
+                            $('#' + chartname + '-div').show();
+                        });
+                    });
+                }
+                if(key == "FeatureBarMap"){
+                    $.each(value, function (k, v) {
+                        addMyTab("featurebarmap.html", "FeatureBarMap.feature_bar_map", v.name,k,'fm_'+v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'fm_'+v.name.replace(/\s/g, "");
+                            $('#featurebarmap_tab').attr('id', chartname + '_id');
+                            $('#featurebarmap').attr('id', chartname + '-div');
+                            $('#featurebarmap-trip-mode').attr('id', chartname + '-trip-mode');
+                            $('#featurebarmap-area-type').attr('id', chartname + '-area-type');
+                            $('#featurebarmap-stacked').attr('id', chartname + '-stacked');
+                            $('#featurebarmap-chart').attr('id', chartname + '-chart');
+                            $('#featurebarmap-map').attr('id', chartname + '-map');
+                            $('#featurebarmap-filters').attr('id', chartname + '-filters');
+                            $('#featurebarmap-tools').attr('id', chartname + '-tools');
                             $('#' + chartname + '-div').show();
                         });
                     });

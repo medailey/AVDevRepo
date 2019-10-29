@@ -21,7 +21,8 @@
         "GroupedCharts": [{"name":"GroupedCharts","config":"Default", "file":"BarChartData.csv"},{"name":"GroupedCharts2","config":"Default", "file":"BarChartData2.csv"}],
         "TimeUse": [{"name":"TimeUse","config":"Default","file":"TimeUseData.csv"}],
         "RadarCharts": [{"name":"Radar","config":"Default","file":"RadarChartsData.csv"}],
-        "BarMap": [{"name":"BarChart","config":"Default", "file":"BarChartAndMapData.csv"}]
+        "BarMap": [{"name":"BarChart","config":"Default", "file":"BarChartAndMapData.csv"}],
+        "Chord": [{"name":"FeatBarChart","config":"Default", "file":"DesireLines.csv"}]
       }
     },
     "NB2040": {
@@ -78,6 +79,14 @@
       "ShowAsVerticalByDefault": false,
       "StackAllChartsByDefault": false,
       "ChartWidthOverride": []
+    }
+  },
+  "Chord":{
+    "Default":{
+      "ZoneFilterFile": "superdistricts.csv",
+      "ZoneFile": "superdistricts.json",
+      "DesireLines": "desirelines.geojson"
+
     }
   },
   "3DMap": {
