@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="341c539d-bbdc-4f96-b376-dae5b739e9e8" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/data/atlanta/BS10/superdistricts.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/atlanta/desirelines.geojson" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/atlanta/superdistricts.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/featurebarmap.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/od.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/templates/featurebarmap.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/atlanta/region.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/atlanta/region.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/sacramento/region.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/sacramento/region.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chord.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/chord.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/points_of_interest_map.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/points_of_interest_map.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -141,7 +130,7 @@
           <entry key="csv" value="15" />
           <entry key="html" value="4652" />
           <entry key="js" value="8379" />
-          <entry key="json" value="2960" />
+          <entry key="json" value="2971" />
           <entry key="txt" value="31" />
         </counts>
       </usages-collector>
@@ -150,7 +139,7 @@
           <entry key="CSS" value="291" />
           <entry key="CSV" value="15" />
           <entry key="HTML" value="4652" />
-          <entry key="JSON" value="2960" />
+          <entry key="JSON" value="2971" />
           <entry key="JavaScript" value="8379" />
           <entry key="PLAIN_TEXT" value="31" />
         </counts>
@@ -163,7 +152,7 @@
           <entry key="geojson" value="3" />
           <entry key="html" value="50" />
           <entry key="js" value="109" />
-          <entry key="json" value="51" />
+          <entry key="json" value="52" />
           <entry key="md" value="1" />
           <entry key="topojson" value="5" />
           <entry key="tpl" value="1" />
@@ -174,7 +163,7 @@
           <entry key="CSS" value="35" />
           <entry key="CSV" value="11" />
           <entry key="HTML" value="51" />
-          <entry key="JSON" value="54" />
+          <entry key="JSON" value="55" />
           <entry key="JavaScript" value="109" />
           <entry key="Markdown" value="1" />
           <entry key="PLAIN_TEXT" value="7" />
@@ -184,6 +173,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/config.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/chord.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -227,7 +225,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/points_of_interest_map.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1156">
@@ -340,6 +338,7 @@
       <replace>chartname</replace>
       <replace>[charttype$=&quot;scatterchart&quot;]</replace>
       <replace>&quot;</replace>
+      <replace>https://raw.githubusercontent.com/medailey/AVDevRepo/master/data</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\SVN\AVDevRepo\data\portland\Freight</dir>
@@ -358,7 +357,6 @@
         <option value="$PROJECT_DIR$/data/sacramento/Survey/districts.csv" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/index.html" />
-        <option value="$PROJECT_DIR$/config.json" />
         <option value="$PROJECT_DIR$/data/nebraska/region.json" />
         <option value="$PROJECT_DIR$/src/templates/barchartmap.html" />
         <option value="$PROJECT_DIR$/src/grouped_barchart.css" />
@@ -402,6 +400,7 @@
         <option value="$PROJECT_DIR$/src/od.js" />
         <option value="$PROJECT_DIR$/data/atlanta/region.json" />
         <option value="$PROJECT_DIR$/src/chord.js" />
+        <option value="$PROJECT_DIR$/config.json" />
       </list>
     </option>
   </component>
@@ -420,9 +419,9 @@
       <path value="$PROJECT_DIR$/bower_components/spectrum/package.json" />
     </packageJsonPaths>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="-1639" />
-    <option name="y" value="6" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-129" />
+    <option name="y" value="-8" />
     <option name="width" value="1539" />
     <option name="height" value="955" />
   </component>
@@ -593,10 +592,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1688" y="7" width="1696" height="1026" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17481662" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15245202" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -655,16 +654,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Updated to click on first tab." />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/templates/timeuse.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="68" selection-start-line="7" selection-start-column="68" selection-end-line="7" selection-end-column="68" />
-          <folding>
-            <element signature="n#style#0;n#p#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/barchart_and_map.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -1067,6 +1056,13 @@
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
         </state>
       </provider>
     </entry>
