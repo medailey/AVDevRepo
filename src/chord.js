@@ -738,10 +738,10 @@ function chord (id,indx) {
         if (!SCENARIO_FOCUS) {
             $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
         }
-            if(DESIRELINE_FILE_LOC){
-                $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-chckboxes').height() / 2 + "px");
+        if(DESIRELINE_FILE_LOC){
+            $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-chckboxes').height() / 2 + "px");
 
-            }
+        }
     }
 
     function styleDesireLineGeoJSONLayer(feature){
