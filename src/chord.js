@@ -466,12 +466,13 @@ function chord (id,indx) {
             data = null;
 
             var size = _.size(legendHeadersShowHide);
-            var columns = width / 165;
+            var legendWidth = $('#' + id + '-chart-container').width();
+            var columns = legendWidth/ 165;
             var lines = Number.parseInt(Math.ceil(size / columns));
             var legheight = 30 * lines;
             var container = d3.select("#" + id + "-dropdown-div").append("svg")
 
-                .attr("width", width).attr("height", legheight).style('padding-top', "10px");
+                .attr("width", legendWidth).attr("height", legheight).style('padding-top', "10px");
             if (!SCENARIO_FOCUS) {
                 $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
             }
@@ -486,10 +487,11 @@ function chord (id,indx) {
 
             var prevLegendLength = 0;
             var xOff, yOff;
+
             var legendOrdinal = container.selectAll('.chordLegend').data(legendHead)
                 .enter().append('g').attr('class', 'chordLegend').attr("transform", function (d, i) {
-                    var calcX = (i % legendRows) * (width / columns);
-                    xOff = (i % legendRows) * (width / columns)
+                    var calcX = (i % legendRows) * (legendWidth / columns);
+                    xOff = (i % legendRows) * (legendWidth / columns)
                     yOff = Math.floor(i / legendRows) * 20
                     if (prevLegendLength != 0) {
                         xOff = xOff + (prevLegendLength - 9);
@@ -526,20 +528,17 @@ function chord (id,indx) {
         //end d3.csv
 
         function showHideBlobs(d) {
-            legendHeadersShowHide[d] = !legendHeadersShowHide[d];
-            var result = true;
+            if(legendHeadersShowHide[d] == false){
+                legendHeadersShowHide[d] = true;
+            } //if the blob is false, set it to true
+            //set all others to false
             for (var i in legendHeadersShowHide) {
-                if (legendHeadersShowHide[i] === true) {
-                    result = false;
-                    break;
+                if (i != d) {
+                    legendHeadersShowHide[i] = false;
                 }
             }
-            //if all the values are false (set to hidden) show them all, we don't want empty space.
-            if (result == true) {
-                for (var i in legendHeadersShowHide) {
-                    legendHeadersShowHide[i] = true;
-                }
-            }
+
+
             createChord();
         }
 
