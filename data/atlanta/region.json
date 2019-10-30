@@ -22,7 +22,8 @@
         "TimeUse": [{"name":"TimeUse","config":"Default","file":"TimeUseData.csv"}],
         "RadarCharts": [{"name":"Radar","config":"Default","file":"RadarChartsData.csv"}],
         "BarMap": [{"name":"BarChart","config":"Default", "file":"BarChartAndMapData.csv"}],
-        "Chord": [{"name":"FeatBarChart","config":"Default", "file":"DesireLines.csv"}]
+        "Chord": [{"name":"FeatBarChart","config":"Default", "file":"DesireLines.csv"}],
+        "POIMap": [{"name":"My POI","config":"Default","file":"TransitStops.csv"}]
       }
     },
     "NB2040": {
@@ -95,6 +96,14 @@
       "DataHasPeriods": true,
       "ZoneFile": []
     }
-  }
+  },
+  "POIMap": {
+    "Default": {
+        "BarSpacing": "0.6",
+        "RotateLabels": "0",
+        "LegendTitle": "Freight Flows",
+        "BubbleDefault": true
+    }
+}
 }
 

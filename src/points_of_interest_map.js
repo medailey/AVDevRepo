@@ -357,8 +357,18 @@ function pointofinterest_and_map (id,indx) {
         if (map != undefined) {
             return;
         }
+        var tonerLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', { id:id + "-by-district-map.toner",
+                updateWhenIdle: true,
+                unloadInvisibleFiles: true,
+                reuseTiles: true,
+                opacity: 1.0
+            });
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {id:id + "-by-district-map.aerial",
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
         map = L.map(id+"-map", {
-            minZoom: 7
+            minZoom: 7,
+            layers:[tonerLayer]
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
         map.on('zoomend', function (type, target) {
@@ -368,13 +378,12 @@ function pointofinterest_and_map (id,indx) {
         });
         console.log("create map poi");
 
-        var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-            updateWhenIdle: true,
-            unloadInvisibleFiles: true,
-            reuseTiles: true,
-            opacity: 1.0
-        });
-        underlyingMapLayer.addTo(map);
+ var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        }
+        L.control.layers(baseMaps).addTo(map);
         redrawMap();
 
     }
@@ -441,7 +450,7 @@ function pointofinterest_and_map (id,indx) {
                 circleMarker.pointFilter = poiData[d].pointfilter;
                 circleMarker.properties = {};
                 circleMarker.properties["NAME"] = d;
-                circleMarkers.push(circleMarker);
+               // circleMarkers.push(circleMarker);
 
                 var checkedfilters = $('#'+id+'-filters').val();
                 var showThis = false;
@@ -687,6 +696,7 @@ function pointofinterest_and_map (id,indx) {
                     dataSeries.push(d.value);
                 }
             });
+            });
             var serie = new geostats(dataSeries);
             maxFeature = serie.max();
             var scaleSqrt = d3.scale.sqrt().domain([0, maxFeature]).range([0, maxBubbleSize]);
@@ -698,7 +708,7 @@ function pointofinterest_and_map (id,indx) {
 
                 circleMarker.setRadius(sqrtRadius);
             });
-        });
+
     }
 
     function updateChartNVD3(callback) {

@@ -467,7 +467,7 @@ function chord (id,indx) {
 
             var size = _.size(legendHeadersShowHide);
             var legendWidth = $('#' + id + '-chart-container').width();
-            var columns = legendWidth/ 165;
+            var columns = Math.floor(legendWidth/ 165);
             var lines = Number.parseInt(Math.ceil(size / columns));
             var legheight = 30 * lines;
             var container = d3.select("#" + id + "-dropdown-div").append("svg")
@@ -491,11 +491,11 @@ function chord (id,indx) {
             var legendOrdinal = container.selectAll('.chordLegend').data(legendHead)
                 .enter().append('g').attr('class', 'chordLegend').attr("transform", function (d, i) {
                     var calcX = (i % legendRows) * (legendWidth / columns);
-                    xOff = (i % legendRows) * (legendWidth / columns)
+                    xOff = (i % legendRows) * 165;
                     yOff = Math.floor(i / legendRows) * 20
-                    if (prevLegendLength != 0) {
-                        xOff = xOff + (prevLegendLength - 9);
-                    }
+                   // if (prevLegendLength != 0) {
+                     //   xOff = xOff + (prevLegendLength - 9);
+                   // }
                     prevLegendLength = d.length;
                     return "translate(" + xOff + "," + yOff + ")"
                 });
@@ -825,9 +825,27 @@ function chord (id,indx) {
         if (map != undefined) {
             return;
         }
+        var tonerLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', { id:id + "-by-district-map.toner",
+                updateWhenIdle: true,
+                unloadInvisibleFiles: true,
+                reuseTiles: true,
+                opacity: 1.0
+            });
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {id:id + "-by-district-map.aerial",
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+
+
         map = L.map(id + "-by-district-map", {
-            minZoom: 6
+            minZoom: 6,
+            layers:[tonerLayer]
         }).setView(CENTER_LOC, 9);
+        var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        }
+        L.control.layers(baseMaps).addTo(map);
         //centered at Atlanta
         map.on('zoomend', function (type, target) {
             var zoomLevel = map.getZoom();
@@ -894,12 +912,7 @@ function chord (id,indx) {
 
             //var stamenTileLayer = new L.StamenTileLayer("toner-lite"); //B&W stylized background map
             //map.addLayer(stamenTileLayer);
-            var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-                updateWhenIdle: true,
-                unloadInvisibleFiles: true,
-                reuseTiles: true,
-                opacity: 1.0
-            });
+
             var desireLineDataTiles;
              if(DESIRELINE_FILE_LOC!="") {
                  $.getJSON(dataLocation + DESIRELINE_FILE_LOC, function (desireLineTiles) {
@@ -948,7 +961,7 @@ function chord (id,indx) {
                     focusLayer.addTo(map);
                 });
             }
-            underlyingMapLayer.addTo(map);
+            //underlyingMapLayer.addTo(map);
             $.getJSON(dataLocation + COUNTY_FILE, function (countyTiles) {
                 "use strict";
                 console.log(COUNTY_FILE + " success");

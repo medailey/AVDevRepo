@@ -650,8 +650,18 @@ var BarChartMap = {
         if (map != undefined) {
             return;
         }
+        var tonerLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', { id:id + "-by-district-map.toner",
+                updateWhenIdle: true,
+                unloadInvisibleFiles: true,
+                reuseTiles: true,
+                opacity: 1.0
+            });
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {id:id + "-by-district-map.aerial",
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
         map = L.map(id + "-map", {
-            minZoom: 7
+            minZoom: 7,
+            layers:[tonerLayer]
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
         map.on('zoomend', function (type, target) {
@@ -659,6 +669,12 @@ var BarChartMap = {
             var zoomScale = map.getZoomScale();
             console.log('zoomLevel: ', zoomLevel, ' zoomScale: ', zoomScale);
         });
+         var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        }
+        L.control.layers(baseMaps).addTo(map);
         $.getJSON(dataLocation + ZONE_FILE_LOC, function (zoneTiles) {
             "use strict";
             //there should be at least as many zones as the number we have data for.
@@ -706,13 +722,7 @@ var BarChartMap = {
 
             //var stamenTileLayer = new L.StamenTileLayer("toner-lite"); //B&W stylized background map
             //map.addLayer(stamenTileLayer);
-            var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-                updateWhenIdle: true,
-                unloadInvisibleFiles: true,
-                reuseTiles: true,
-                opacity: 1.0
-            });
-            underlyingMapLayer.addTo(map);
+
             $.getJSON(dataLocation + COUNTY_FILE, function (countyTiles) {
                 "use strict";
                 console.log(COUNTY_FILE + " success");
