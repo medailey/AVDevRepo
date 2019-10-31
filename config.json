@@ -5,7 +5,7 @@
       "datalocation":"https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/"
     },
     "atlanta":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/atlanta/"
+       "datalocation":  "http://localhost:8000/data/atlanta/"
     },
     "portland":{
        "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/portland/"
