@@ -15,6 +15,7 @@
   "scenarios": {
     "BS10": {
       "title":"- Base year 2010",
+      "ScenarioFocus": "transit.json",
       "visualizations": {
         "Sunburst": [{"name":"Sunburst","config":"Default","file":"TreeMapData.csv"}],
         "3DMap": [{"name":"ThreeDMap","config":"Default","file":"3DAnimatedMapData.csv"}],
@@ -101,7 +102,7 @@
     "Default": {
         "BarSpacing": "0.6",
         "RotateLabels": "0",
-        "LegendTitle": "Freight Flows",
+        "LegendTitle": "Transit Chart",
         "BubbleDefault": true
     }
 }
