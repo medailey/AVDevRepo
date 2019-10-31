@@ -20,9 +20,9 @@ ActivityViz supports configuration for multiple regions.  To setup ActivityViz i
 to your GitHub account and then remove the existing configured region folders in the data folder.  Next, add your
 region by doing the following:
 
-1. Add the region name and properties in the config.json file.  Delete the other existing regions if desired.
-2. Add a new region folder in the data folder. For example: The region "atlanta" should have a folder named "atlanta" in the data folder.  
-3. The first region with the property "default" set to true will determine which graphics are shown on the main page.
+1. Add the region name and data folder location in the config.json file.  Delete the other existing regions if desired.
+2. The data location can be anywhere that serves up the files. For example: The region "rsginc" should have a folder named "rsginc" in the data location "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/"  
+3. The first region will determine which graphics are shown on the main page.
 4. Copy existing region.json file into the region folder.
 
 ## Adding New Scenario Data
@@ -38,7 +38,7 @@ Each region supports data for multiple scenarios.  Do the following to add scena
   - BarChartData.csv: BARGROUP, COLUMNS, QUANTITY, CHART 
   - ChordData.csv: FROM, TO, <QUANTITY_1_LABEL>, <QUANTITY_2_LABEL>, ... 
   - Scatter.csv: LABEL, XAXIS, YAXIS, SIZE (YAXIS/XAXIS)
-  - PointofInterest.csv: POINTS OF INTEREST, LAT, LNG, GROUPING, <QUANTITY_1_LABEL>, <QUANTITY_2_LABEL>, ...
+  - PointofInterest.csv: POINTS OF INTEREST, FILTER, LAT, LNG, GROUPING, <QUANTITY_1_LABEL>, <QUANTITY_2_LABEL>, ...
 
 Notes: 
   - All data tables are not required and each data table is used to populate a specific visual.  Take 
