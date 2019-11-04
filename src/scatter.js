@@ -67,6 +67,25 @@ function scatter(id,indx) {
 
             //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
             var headers = d3.keys(data[0]);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
             labelColumn = headers[0];
             xAxisColumn = headers[1];
             yAxisColumn = headers[2];

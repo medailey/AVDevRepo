@@ -65,6 +65,25 @@ var RadarData = {
                            var csv = d3.csv.parseRows(data).slice(1);
                            var headers = d3.csv.parseRows(data)[0];
                            var legendHead = headers.slice(2, headers.len);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                            if (legendHead.length == 0) {
                                $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the radar data.</span></h3></div>");
                                return;

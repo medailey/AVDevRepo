@@ -199,6 +199,25 @@ var ThreeDMap = {
                     $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the 3D Map data.</span></h3></div>");
                     return;
                 }
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                 //setDataSpecificDOM();
                 data = null; //allow memory to be GC'ed
                 var allData = [];

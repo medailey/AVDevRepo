@@ -14,7 +14,7 @@ function pointofinterest_and_map (id,indx) {
     var chartData = null;
     var region = abmviz_utilities.GetURLParameter("region");
 	var dataLocation = localStorage.getItem(region);
-    var url = dataLocation+ abmviz_utilities.GetURLParameter("scenario")
+    var url = dataLocation+ abmviz_utilities.GetURLParameter("scenario");
     var fileName = "PointofInterest.csv";
     var chartSelector = "#"+id+"-chart";
     var svgChart;
@@ -27,7 +27,7 @@ function pointofinterest_and_map (id,indx) {
     var showCycleTools = true;
     var highlightLayer;
     var highlightBoxes;
-    var showChartOnPage = true;
+    var showChartOnPage = $('#'+id+'-chart').children().length==0;
     var pointNameCol;
     var maxFeature;
     var circleMarkers;
@@ -46,6 +46,7 @@ function pointofinterest_and_map (id,indx) {
     var bubbleColor = 'rgba(255, 120, 0, 0.5)';
     var pointColor = '#ff7800';
     var groupsSet;
+    var focusLayer;
     var groupArry = [];
     var extNvd3Chart;
     var enabledGroups;
@@ -72,6 +73,7 @@ function pointofinterest_and_map (id,indx) {
     var maxLabelLength = 0;
     var paletteRamps = d3.selectAll("#"+id+" .ramp");
     var pointsAll = [];
+    var controlLayer;
     $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
 
     //start off chain of initialization by reading in the data
@@ -117,7 +119,7 @@ function pointofinterest_and_map (id,indx) {
                 if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
                         SCENARIO_FOCUS = true;
                         scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
-                        $('#' + id + '-tooltable tbody tr').append("<td>Focus Color:</td> <td><input type='text' id='" + id + "-focus-color' style='display: none;' > </td> ");
+                        $('#' + id + '-tooltable tbody tr').append("<td>Focus: <input type='text' id='" + id + "-focus-color' style='display: none;' > </td> ");
                     }
 
                 $.each(configSettings, function (opt, value) {
@@ -141,9 +143,7 @@ function pointofinterest_and_map (id,indx) {
             }
                 callback();
             });
-
-            }
-
+            } else { return;}
     }
 
     function createEmptyChart() {
@@ -157,9 +157,7 @@ function pointofinterest_and_map (id,indx) {
                 } else {
                     nvd3Chart = nv.models.multiBarHorizontalChart();
                 }
-
                 //console.log('chartGenerator being called. nvd3Chart set to:' + nvd3Chart);
-
                 nvd3Chart.x(function (d, i) {
                     return d.label;
                 }).y(function (d) {
@@ -234,6 +232,26 @@ function pointofinterest_and_map (id,indx) {
             }
 
             var headers = d3.keys(data[0]);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
             pointNameCol = headers[0];
             filterColumn = headers[1];
             latColumn = headers[2];
@@ -391,16 +409,18 @@ function pointofinterest_and_map (id,indx) {
             "Aerial": Esri_WorldImagery
 
         }
-        L.control.layers(baseMaps).addTo(map);
+        controlLayer = L.control.layers(baseMaps).addTo(map);
 
          if (scenarioPolyFile != undefined) {
-            $.getJSON(dataLocation  + scenarioPolyFile, function (scenarioTiles) {
+            $.getJSON(dataLocation + scenario + "/" + scenarioPolyFile, function (scenarioTiles) {
                 "use strict";
-                var focusLayer;
+
                 focusLayer = L.geoJSON(scenarioTiles, {
                     style: styleFocusGeoJSONLayer
                 });
                 focusLayer.addTo(map);
+            }).complete(function(){
+                controlLayer.addOverlay(focusLayer,"Focus");
             });
         }
         redrawMap();
@@ -514,6 +534,9 @@ function pointofinterest_and_map (id,indx) {
         } else {
             map.addLayer(highlightLayer);
         }
+        if(focusLayer!=undefined){
+            focusLayer.bringToFront();
+        }
     }
 
     function ColorLuminance(hex, lum) {
@@ -572,7 +595,6 @@ function pointofinterest_and_map (id,indx) {
 
         function updateMapUI() {
            // bubblesShowing = $("#poi-by-group-bubbles").is(":checked");
-
             console.log('updateBubbles: bubblesShowing=' + bubblesShowing);
             console.log('$("#'+id+'-bubble-size").prop("disabled"): ' + $("#"+id+"-bubble-size").prop("disabled"));
             $("#"+id+"-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
@@ -584,7 +606,6 @@ function pointofinterest_and_map (id,indx) {
                 updateBubbleSize();
                 circlesLayerGroup.addTo(map);
                 map.removeLayer(highlightLayer);
-
             } else {
                 map.addLayer(highlightLayer);
                 circlesLayerGroup.removeFrom(map);
@@ -627,13 +648,6 @@ function pointofinterest_and_map (id,indx) {
             localStorageKey: "spectrum.demo",
             clickoutFiresChange: true,
             palette: palette,
-            // 			change: function (color) {
-            // 				//BUG this gets called when user still clicking in color chooser (despite docs) See
-            // 				//https://github.com/bgrins/spectrum/issues/289
-            // 				console.log("bubble-color spectrum change called with color:" + color);
-            // 				bubbleColor = color;
-            // 				updateBubbleColor();
-            // 			},
             hide: function (color) {
                 if (color != bubbleColor) {
                     bubbleColor = color;

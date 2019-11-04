@@ -61,6 +61,7 @@ var BarChartMap = {
     var zoneDataLayer;
     var countyLayer;
     var focusLayer;
+    var controlLayer;
     var barsWrap;
     var barsWrapRect;
     var barsWrapRectHeight;
@@ -149,11 +150,9 @@ var BarChartMap = {
                     if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
                         SCENARIO_FOCUS = true;
                         scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
-                        $('#' + id + '-tools').prepend(" Focus Color: <input type='text' id='" + id + "-focus-color' style='display: none;' >  ");
+                        $('#' + id + '-tools').prepend(" Focus: <input type='text' id='" + id + "-focus-color' style='display: none;' >  ");
                     }
                 }
-
-
                 var configSettings = data["BarMap"][configName];
                 if (configSettings != undefined) {
                     $.each(configSettings, function (opt, value) {
@@ -201,6 +200,7 @@ var BarChartMap = {
         }
         if (scenarioPolyFile != undefined) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
+            focusLayer.bringToFront();
         }
         if (bubblesShowing) {
             updateBubbleSize();
@@ -254,6 +254,18 @@ var BarChartMap = {
             if (countyColumn == undefined) {
                 $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Barchart and Map data.</span></h3></div>");
                 return;
+            }
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    data: data,
+                    columns: columnsDT
+                });
             }
             modeColumn = headers[2];
             quantityColumn = headers[3];
@@ -669,12 +681,7 @@ var BarChartMap = {
             var zoomScale = map.getZoomScale();
             console.log('zoomLevel: ', zoomLevel, ' zoomScale: ', zoomScale);
         });
-         var baseMaps = {
-            "Grayscale": tonerLayer,
-            "Aerial": Esri_WorldImagery
 
-        }
-        L.control.layers(baseMaps).addTo(map);
         $.getJSON(dataLocation + ZONE_FILE_LOC, function (zoneTiles) {
             "use strict";
             //there should be at least as many zones as the number we have data for.
@@ -740,7 +747,9 @@ var BarChartMap = {
                     opacity: 1.0,
                     style: styleCountyGeoJSONLayer,
                     onEachFeature: onEachCounty
-                });
+                })
+
+
 
                 var allCountyBounds = countyLayer.getBounds();
                 console.log(allCountyBounds);
@@ -748,7 +757,7 @@ var BarChartMap = {
                     map.fitBounds(allCountyBounds);
 
                 zoneDataLayer.addTo(map);
-                countyLayer.addTo(map);
+               countyLayer.addTo(map);
                 highlightLayer.addTo(map);
             }).success(function () {
                 console.log(COUNTY_FILE + " second success");
@@ -757,6 +766,7 @@ var BarChartMap = {
                 console.log(COUNTY_FILE + " errorThrown" + errorThrown);
                 console.log(COUNTY_FILE + " responseText (incoming?)" + jqXHR.responseText);
             }).complete(function () {
+                controlLayer.addOverlay(countyLayer,"Counties");
                 console.log(COUNTY_FILE + " complete");
             });
 
@@ -784,8 +794,18 @@ var BarChartMap = {
                     style: styleFocusGeoJSONLayer
                 });
                 focusLayer.addTo(map);
+            }).complete(function(d){
+
+               controlLayer.addOverlay(focusLayer,"Focus");
             });
         }		//end geoJson of zone layer
+        var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        };
+
+        controlLayer= L.control.layers(baseMaps).addTo(map);
     }; //end createMap
 
 

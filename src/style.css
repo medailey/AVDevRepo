@@ -1,6 +1,15 @@
 body {
 	padding-top: 50px;
 }
+.dataTables_wrapper {
+	padding-top:10px;
+}
+.collapse {
+	border-top: 1px dashed #333;
+}
+.dataTables_wrapper table {
+	width: auto;
+}
 
 .dynamic-content{
 	display:none;

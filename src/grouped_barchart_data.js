@@ -22,7 +22,7 @@ function barchart(id,indx) {
 	var dataLocation = localStorage.getItem(region);
 	var configIndx = indx;
 	var chartSelector = "#"+id+"_grouped-barchart";
-    var showChartOnPage = true;
+    var showChartOnPage = $('#'+id+'-container').children().length==0;
     var fileName = "BarChartData.csv";
     var scenario = abmviz_utilities.GetURLParameter("scenario");
     var url = dataLocation + scenario;
@@ -122,7 +122,27 @@ var chartDataContainer=[];
                     //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
                     var headers = d3.keys(data[0]);
                     var numCharts = headers.slice()
-                    chartData = data;
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                chartData = data;
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
                     mainGroupColumn = headers[0];
                     subGroupColumn = headers[1];
                     chartColumn = headers[3];
@@ -259,9 +279,13 @@ var chartDataContainer=[];
 
 
                     readInDataCallback();
-                });
+                })
+
+
             });
             //end d3.csv
+        } else {
+            return;
         }
 
         function readInDataCallback() {

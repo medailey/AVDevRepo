@@ -63,15 +63,34 @@ function timeuse (id,indx) {
                     //$('#timeuse').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the sunburst data.</span></h3></div>");
                     throw error;
                 }
+                var headers = d3.csv.parseRows(data)[0];
                 var csv = d3.csv.parseRows(data).slice(1);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
                 if (csv[0] == "") //we have no data
                 {
-                    $('#'+id+'_id').parent("li").attr("disabled", "disabled");
-                    $('#'+id+"-div").html("");
+                    $('#' + id + '_id').parent("li").attr("disabled", "disabled");
+                    $('#' + id + "-div").html("");
 
                     //$('#timeuse').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the sunburst data.</span></h3></div>");
                     return;
                 }
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                 data = null; //allow memory to be GC'ed
 
                 var rolledUpMap = d3.nest().key(function (d) {

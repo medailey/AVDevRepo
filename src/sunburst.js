@@ -48,7 +48,25 @@ function sunburst(id,indx) {
                 var maingroupColumn = headers[0];
                 var subgroupColumn = headers[1];
                 var quantityColumn = headers[2];
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
 
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: 'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                 d3.selectAll(".sunburst-maingroup").html(maingroupColumn);
 
                 try {

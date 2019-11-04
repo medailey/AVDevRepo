@@ -70,9 +70,7 @@
       "ConvertAxesToPercent": true
     }
   },
-  "BarMap": {
-    "Default": {}
-  },
+  "BarMap": { "Default": {}  },
   "GroupedCharts": {
     "Default": {
       "NumberColsGrouped": 1,
