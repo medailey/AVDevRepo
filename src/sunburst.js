@@ -21,6 +21,7 @@ function sunburst(id,indx) {
 	var originalNodeData;
 	var radius, x, y, svg, arc;
 	var showChartOnPage = true;
+	var infoBox;
 	// Dimensions of legend item: width, height, spacing, radius of rounded rect.
 	var li = {
 		w: legendBoxWidth,
@@ -60,7 +61,8 @@ function sunburst(id,indx) {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: csv,
@@ -446,8 +448,20 @@ function sunburst(id,indx) {
             if (data["scenarios"][scenario].visualizations != undefined) {
                 if (data["scenarios"][scenario].visualizations["Sunburst"][indx].file) {
                     fileName = data["scenarios"][scenario].visualizations["Sunburst"][indx].file;
+                    var infoBox;
+                    if(data["scenarios"][scenario].visualizations["Sunburst"][indx].info){
+                        infoBox = data["scenarios"][scenario].visualizations["Sunburst"][indx].info;
+                        $('#'+id+'-div span.glyphicon-info-sign').attr("title",infoBox);
+                        $('#'+id+'-div [data-toggle="tooltip"]').tooltip();
+                    }
 
                 }
+                if (data["scenarios"][scenario].visualizations["Sunburst"][indx].datafilecolumns) {
+            var datacols = data["scenarios"][scenario].visualizations["Sunburst"][indx].datafilecolumns;
+            $.each(datacols,function(key,value){
+                $('#'+id+'-datatable-columns').append("<p>"+key+": "+value+"</p>");
+            })
+        }
             }
 
         }).complete(function () {

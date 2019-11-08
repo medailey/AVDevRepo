@@ -78,6 +78,18 @@ function chord (id,indx) {
                 if (data["scenarios"][scenario].visualizations != undefined) {
                     if (data["scenarios"][scenario].visualizations["Chord"][indx].file) {
                         fileName = data["scenarios"][scenario].visualizations["Chord"][indx].file;
+                        var infoBox;
+                        if (data["scenarios"][scenario].visualizations["Chord"][indx].info) {
+                            infoBox = data["scenarios"][scenario].visualizations["Chord"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                        }
+                    }
+                    if (data["scenarios"][scenario].visualizations["Chord"][indx].datafilecolumns) {
+                        var datacols = data["scenarios"][scenario].visualizations["Chord"][indx].datafilecolumns;
+                        $.each(datacols, function (key, value) {
+                            $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                        })
                     }
                 }
                 url += "/" + fileName;
@@ -125,16 +137,12 @@ function chord (id,indx) {
                         }
                         if(opt =="DesireLines"){
                             DESIRELINE_FILE_LOC = value;
-                            $('#'+id+'-chart-map').prepend("<div class='col-sm-6' id='"+id+"-chckboxes'>");
-                            $('#'+id+'-chckboxes').prepend("<label style='margin-right:10px;'><input type='checkbox' checked id='"+id+"-desirelines' />Desire Lines</label>");
-                            $('#'+id+'-chckboxes').prepend("<label><input type='checkbox' id='"+id+"-chkzone' />Zones</label> </div>");
-                            $('#'+id+'-chart-map').prepend("</div>");
                         }
 
                     });
                 }
             }).complete(function () {
-                showDesireLines = $('#'+id+'-desirelines').is(":checked");
+
                 callback();
                 ZONE_FILTER_LOC = ZONE_FILTER_LOC;
                 $("#chord-grouppercent").off().click(function () {
@@ -190,7 +198,8 @@ function chord (id,indx) {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: data,
@@ -726,29 +735,26 @@ function chord (id,indx) {
         "use strict";
         showDesireLines = $('#'+id+'-desirelines').is(':checked');
 
-        if(showDesireLines){
-            desireLineDataLayer.addTo(map);
-            if(zoneDataLayer != undefined){
-                map.removeLayer(zoneDataLayer);
-            }
-            if(destZoneDataLayer !=undefined){
-                map.removeLayer(destZoneDataLayer);
+            if(map.hasLayer(zoneDataLayer)){
+                console.log("zone layer on");
+                 zoneDataLayer.setStyle(styleZoneGeoJSONLayer);
+                         if(destZoneDataLayer !=undefined){
+                destZoneDataLayer.addTo(map);
+                 destZoneDataLayer.setStyle(styleDestZoneGeoJSONLayer);
             }
 
-            desireLineDataLayer.setStyle(styleDesireLineGeoJSONLayer);
-        } else {
-            if(desireLineDataLayer !=undefined){
-                map.removeLayer(desireLineDataLayer);
+            }  else {
+                map.removeLayer(destZoneDataLayer);
             }
-            zoneDataLayer.addTo(map);
-            if(destZoneDataLayer !=undefined){
-               destZoneDataLayer.addTo(map);
+            if(map.hasLayer(desireLineDataLayer)){
+                  desireLineDataLayer.setStyle(styleDesireLineGeoJSONLayer);
             }
-            zoneDataLayer.setStyle(styleZoneGeoJSONLayer);
-            destZoneDataLayer.setStyle(styleDestZoneGeoJSONLayer);
-        }
+            //zoneDataLayer.addTo(map);
+
+
         if (scenarioPolyFile != undefined) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
+            focusLayer.bringToBack();
         }
         if (!SCENARIO_FOCUS) {
             $('#' + id + '-chart-map').css("margin-top", $('#' + id + '-dropdown-div').height() / 2 + "px");
@@ -965,6 +971,8 @@ function chord (id,indx) {
                          opacity: 1.0,
                          style: styleDesireLineGeoJSONLayer
                      });
+                 }).complete(function(){
+                      controlLayer.addOverlay(desireLineDataLayer,"Desire Lines");
                  });
              }
 
@@ -1004,7 +1012,7 @@ function chord (id,indx) {
                     map.fitBounds(allCountyBounds);
                 map.setMaxBounds(allCountyBounds);
 
-                if (destZoneDataLayer != null) {
+               /* if (destZoneDataLayer != null) {
                     destZoneDataLayer.addTo(map);
                 }
                 else if(destZoneDataLayer != undefined) {
@@ -1014,7 +1022,7 @@ function chord (id,indx) {
                     desireLineDataLayer.addTo(map);
                 } else {
                     zoneDataLayer.addTo(map);
-                }
+                }*/
                 countyLayer.addTo(map);
             }).success(function () {
                 console.log(COUNTY_FILE + " second success");
@@ -1045,6 +1053,9 @@ function chord (id,indx) {
                 var layer = e.target;
                 changeCurrentCounty(layer.feature.properties.NAME);
             }
+        }).complete(function(){
+            zoneDataLayer.addTo(map);
+             controlLayer.addOverlay(zoneDataLayer,"Zones");
         });
          function getDesireLineLayer(){
 

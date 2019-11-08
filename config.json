@@ -1,24 +1,22 @@
 {
   "regions":{
     "rsginc":{
-
-      "datalocation":"https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/rsginc/"
+      "datalocation":"https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/rsginc/"
     },
     "atlanta":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/atlanta/"
+       "datalocation":  "https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/atlanta/"
     },
     "portland":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/portland/"
+       "datalocation":  "https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/portland/"
     },
     "sandiego":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/sandiego/"
+       "datalocation":  "https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/sandiego/"
     },
     "sacramento":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/sacramento/"
+       "datalocation":  "https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/sacramento/"
     },
     "nebraska":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/nebraska/"
+       "datalocation":  "https://raw.githubusercontent.com/RSGInc/ActivityViz_Data/master/data/nebraska/"
     }
-
   }
 }

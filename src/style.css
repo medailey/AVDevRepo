@@ -82,3 +82,17 @@ body {
 	font-weight:bold;
 	color:black;
 }
+
+#main_div{
+	margin-bottom:25px;
+}
+.footer{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    max-height: 25px;
+    background-color: #222222;
+    color: white;
+    width: 100%;
+    z-index: 999999;
+}

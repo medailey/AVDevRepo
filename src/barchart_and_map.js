@@ -90,7 +90,7 @@ var BarChartMap = {
     var highlightLayer;
     var maxLabelLength = 0;
     var buildChart = $('#'+id+'-chart').children().length ==0;
-    $("#scenario-header").html("Scenario " + scenario);
+
 
     //start off chain of initialization by reading in the data
     function readInDataCallback() {
@@ -113,7 +113,6 @@ var BarChartMap = {
         })
     });
 
-
     function getConfigSettings(callback) {
         if (buildChart ) {
             $.getJSON(dataLocation + "region.json", function (data) {
@@ -125,6 +124,18 @@ var BarChartMap = {
                     }
                     if (data["scenarios"][scenario].visualizations["BarMap"][indx].config) {
                         configName = data["scenarios"][scenario].visualizations["BarMap"][indx].config;
+                    }
+                        if(data["scenarios"][scenario].visualizations["BarMap"][indx].info){
+                        var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["BarMap"][indx].info;
+                        $('#'+id+'-div span.glyphicon-info-sign').attr("title",infoBox);
+                        $('#'+id+'-div [data-toggle="tooltip"]').tooltip();
+                    }
+                    if (data["scenarios"][scenario].visualizations["BarMap"][indx].datafilecolumns) {
+                        var datacols = data["scenarios"][scenario].visualizations["BarMap"][indx].datafilecolumns;
+                        $.each(datacols, function (key, value) {
+                            $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                        })
                     }
                 }
                 //GO THROUGH region level configuration settings
@@ -200,9 +211,9 @@ var BarChartMap = {
         }
         if (scenarioPolyFile != undefined) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
-            focusLayer.bringToFront();
+            focusLayer.bringToBack();
         }
-        if (bubblesShowing) {
+        if (map.hasLayer(circlesLayerGroup)) {
             updateBubbleSize();
         }
     }
@@ -263,6 +274,14 @@ var BarChartMap = {
                 });
 
                 $('#' + id + '-datatable-table').DataTable({
+                     dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
                     data: data,
                     columns: columnsDT
                 });
@@ -755,7 +774,8 @@ var BarChartMap = {
                 console.log(allCountyBounds);
                 if (!SCENARIO_FOCUS && countyLayer.getBounds().isValid())
                     map.fitBounds(allCountyBounds);
-
+                updateBubbleColor();
+                updateBubbleSize();
                 zoneDataLayer.addTo(map);
                countyLayer.addTo(map);
                 highlightLayer.addTo(map);
@@ -767,6 +787,8 @@ var BarChartMap = {
                 console.log(COUNTY_FILE + " responseText (incoming?)" + jqXHR.responseText);
             }).complete(function () {
                 controlLayer.addOverlay(countyLayer,"Counties");
+                 controlLayer.addOverlay(zoneDataLayer,"Zones");
+                 controlLayer.addOverlay(circlesLayerGroup,"Bubbles");
                 console.log(COUNTY_FILE + " complete");
             });
 
@@ -866,12 +888,14 @@ var BarChartMap = {
             }
             extNvd3Chart.update();
         });
-
+         $("#" + id + "-stroke").click(function () {
+            updateOutline();
+         });
         $("#" + id + "-zones").click(function () {
-            updateMapUI();
+           // updateMapUI();
         });
         $("#" + id + "-bubbles").click(function () {
-            updateMapUI();
+            //updateMapUI();
         });
 
         function updateMapUI() {
@@ -886,15 +910,15 @@ var BarChartMap = {
             if (bubblesShowing) {
                 updateBubbleColor();
                 updateBubbleSize();
-                circlesLayerGroup.addTo(map);
+                //circlesLayerGroup.addTo(map);
 
             } else {
-                circlesLayerGroup.removeFrom(map);
+               // circlesLayerGroup.removeFrom(map);
             }
             if (zonesShowing) {
-                zoneDataLayer.addTo(map);
+              //  zoneDataLayer.addTo(map);
             } else {
-                zoneDataLayer.removeFrom(map);
+                //zoneDataLayer.removeFrom(map);
             }
         }
 

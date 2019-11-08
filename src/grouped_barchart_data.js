@@ -50,6 +50,18 @@ var chartDataContainer=[];
                         if (data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config) {
                             configName = data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config;
                         }
+                        if (data["scenarios"][scenario].visualizations["GroupedCharts"][indx].info) {
+                            var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["GroupedCharts"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                        }
+                        if (data["scenarios"][scenario].visualizations["GroupedCharts"][indx].datafilecolumns) {
+                            var datacols = data["scenarios"][scenario].visualizations["GroupedCharts"][indx].datafilecolumns;
+                            $.each(datacols, function (key, value) {
+                                $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                            })
+                        }
                     }
                 });
                 var configSettings = data["GroupedCharts"][configName];
@@ -136,7 +148,8 @@ var chartDataContainer=[];
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: data,

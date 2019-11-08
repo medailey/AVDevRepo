@@ -43,7 +43,7 @@ function grouped_barchart (id, data,options,divid) {
 	var barsWrapRectId = divid+"-barsWrapRectRSG"
 	var barsWrapRectSelector = "#" + barsWrapRectId;
 	var showChartOnPage = true;
-	$("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+
 	//start off chain of initialization by reading in the data
     svgChart = d3.select(id);
     //setDataSpecificDOM();

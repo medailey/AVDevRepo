@@ -67,10 +67,13 @@ Each Data/Region folder needs the following:
     - scenarios: Defines each scenario (i.e. model run) available to each user.  Each scenario is an object, the name of the scenario is the name of the object. For example "BS10": {} the scenario name is BS10.
         - title: the sub text or title of the scenario that will appear along with the name on the front page        
         - CenterMap: overrides the region specific center of map, will also focus in on the point rather than find best view
+        - label: overrides the default scenario - title setup for the scenario and instead displays the label text in all cases
         - ScenarioFocus: filename of GeoJSON to be displayed on the maps (BarChart with Map, Point of Interest and Chord Map)
         - visualizations: set of visuals to be display on the scenario specific page, the order they are defined will determine the order of the tab
             - visuals are Sunburst, 3DMap, GroupedCharts (standard barcharts), TimeUse, RadarCharts, BarMap (barchart with map), Chord and POIMap (barchart with points of interest instead of zones)
-            - Each visual title allows for an array of multiple charts. Each entry will be it's own tab on the scenario specific page.  Each chart object requires a name, config (name of configuration set to use) and a file (filename that will contain the data)
+            - Each visual title allows for an array of multiple charts. Each entry will be it's own tab on the scenario specific page.  
+            - Each chart object requires a "name", "config" (name of configuration set to use) and a "file" (filename that will contain the data). 
+            - Optional chart properties: "info" - is is a tooltip to appear next to the chart title, "datafilecolumns" - a key/value object that will display underneath the data table on the bottom of the chart tab
             - Example of multiple visuals for single chart type:  "GroupedCharts": [{"name":"GroupedCharts","config":"Default", "file":"BarChartData.csv"},{"name":"GroupedCharts2","config":"Default", "file":"BarChartData2.csv"}],
     
     - Each chart type has a different entry for their specific configuration settings. You can set up several different configuration entries for each chart type. This lets you customize the each chart tab 

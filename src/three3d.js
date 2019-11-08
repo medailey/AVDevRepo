@@ -99,10 +99,24 @@ var ThreeDMap = {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
                 if (data["scenarios"][scenario].visualizations != undefined) {
-                    if (data["scenarios"][scenario].visualizations["3DMap"][0].file) {
-                        fileName = data["scenarios"][scenario].visualizations["3DMap"][0].file;
+                    if (data["scenarios"][scenario].visualizations["3DMap"][indx].file) {
+                        fileName = data["scenarios"][scenario].visualizations["3DMap"][indx].file;
 
                     }
+                    if (data["scenarios"][scenario].visualizations["3DMap"][indx].info) {
+                        var infoBox;
+                        infoBox = data["scenarios"][scenario].visualizations["3DMap"][indx].info;
+                        $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                        $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+
+
+                    }
+        if (data["scenarios"][scenario].visualizations["3DMap"][indx].datafilecolumns) {
+            var datacols = data["scenarios"][scenario].visualizations["3DMap"][indx].datafilecolumns;
+            $.each(datacols,function(key,value){
+                $('#'+id+'-datatable-columns').append("<p>"+key+": "+value+"</p>");
+            })
+        }
                 }
                 url += "/" + fileName;
                 //go through region level config settings
@@ -211,7 +225,8 @@ var ThreeDMap = {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: csv,

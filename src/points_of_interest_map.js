@@ -21,7 +21,7 @@ function pointofinterest_and_map (id,indx) {
     var showChartOnPage = true;
     var CENTER_LOC = [];
     var SCENARIO_FOCUS = false;
-    var focusColor = "Yellow";
+    var focusColor = "black";
     var ROTATELABEL = 0;
     var BARSPACING = 0.2;
     var showCycleTools = true;
@@ -74,7 +74,7 @@ function pointofinterest_and_map (id,indx) {
     var paletteRamps = d3.selectAll("#"+id+" .ramp");
     var pointsAll = [];
     var controlLayer;
-    $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+
 
     //start off chain of initialization by reading in the data
     function readInDataCallback() {
@@ -106,6 +106,18 @@ function pointofinterest_and_map (id,indx) {
                         }
                         if (data["scenarios"][scenario].visualizations["POIMap"][indx].config) {
                             configName = data["scenarios"][scenario].visualizations["POIMap"][indx].config;
+                        }
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].info) {
+                            var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["POIMap"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                        }
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].datafilecolumns) {
+                            var datacols = data["scenarios"][scenario].visualizations["POIMap"][indx].datafilecolumns;
+                            $.each(datacols, function (key, value) {
+                                $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                            })
                         }
                     }
                 });
@@ -245,7 +257,8 @@ function pointofinterest_and_map (id,indx) {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: data,
@@ -373,6 +386,7 @@ function pointofinterest_and_map (id,indx) {
         });
         $('#'+id+'-groups-current').change(function () {
             selectedGroup = $('#'+id+'-groups-current').val();
+             d3.selectAll("#"+id+"-div .poi-by-group-type").html($("#"+id+"-values-current").val());
             redrawMap();
 
         });
@@ -486,7 +500,12 @@ function pointofinterest_and_map (id,indx) {
                     $('div.nvtooltip td.key').text($('#'+id+'-groups-current').val());
                     $('div.nvtooltip td.value').text(value.toLocaleString());
                     $('div.nvtooltip').css('opacity',1);
-                    $('div.nvtooltip').css('transform',"translate(430px,430px)");
+                     var element = $('g.tick text:contains("'+name+'")')[0];
+                     var bodyRect = document.body.getBoundingClientRect(),
+                    elemRect = element.getBoundingClientRect(),
+                    offset   = elemRect.top - bodyRect.top;
+                     //console.log(elemRect); console.log(offset);
+                    $('div.nvtooltip').css('transform',"translate("+elemRect.x+"px,"+elemRect.y+"px)");
                     $('div.nvtooltip td.legend-color-guide div').css('background-color',color);
                     this.openPopup();
                 });
@@ -535,7 +554,8 @@ function pointofinterest_and_map (id,indx) {
             map.addLayer(highlightLayer);
         }
         if(focusLayer!=undefined){
-            focusLayer.bringToFront();
+            focusLayer.bringToBack();
+            focusLayer.setStyle(styleFocusGeoJSONLayer);
         }
     }
 

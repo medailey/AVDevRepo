@@ -34,6 +34,18 @@ var RadarData = {
                            if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].config) {
                                configName = data["scenarios"][scenario].visualizations["RadarCharts"][indx].config;
                            }
+                           if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].info) {
+                               var infoBox;
+                               infoBox = data["scenarios"][scenario].visualizations["RadarCharts"][indx].info;
+                               $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                               $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                           }
+                           if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].datafilecolumns) {
+                               var datacols = data["scenarios"][scenario].visualizations["RadarCharts"][indx].datafilecolumns;
+                               $.each(datacols, function (key, value) {
+                                   $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                               })
+                           }
                        }
                    });
                    var configSettings = data["RadarCharts"][configName];
@@ -77,7 +89,8 @@ var RadarData = {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: csv,

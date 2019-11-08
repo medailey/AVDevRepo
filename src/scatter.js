@@ -9,7 +9,7 @@ function scatter(id,indx) {
     var url = dataLocation + abmviz_utilities.GetURLParameter("scenario");
     var showChartOnPage = true;
     var fileName = "Scatter.csv";
-    $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+
     var xAxisColumn;
     var yAxisColumn;
     var sizeColumn;
@@ -37,6 +37,19 @@ function scatter(id,indx) {
                         if (data["scenarios"][scenario].visualizations["Scatter"][indx].file) {
                             fileName = data["scenarios"][scenario].visualizations["Scatter"][indx].file;
                         }
+                        if (data["scenarios"][scenario].visualizations["Scatter"][indx].info) {
+                            var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["Scatter"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#'+id+'-div [data-toggle="tooltip"]').tooltip();
+                        }
+                if (data["scenarios"][scenario].visualizations["Scatter"][indx].datafilecolumns) {
+            var datacols = data["scenarios"][scenario].visualizations["Scatter"][indx].datafilecolumns;
+            $.each(datacols,function(key,value){
+                $('#'+id+'-datatable-columns').append("<p>"+key+": "+value+"</p>");
+            })
+        }
+
                     }
                 });
                 var configSettings = data["Scatter"][configName];
@@ -79,7 +92,8 @@ function scatter(id,indx) {
                     buttons: [
                         {
                             extend: 'csv',
-                            text: 'Download CSV'
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
                         }
                     ],
                     data: data,

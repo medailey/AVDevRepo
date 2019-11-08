@@ -4,7 +4,7 @@
   "ZoneFile": "ZoneShape.GeoJSON",
   "Icon": "arc_logo.ico",
   "Logo": "arc_logo.png",
-  "NavbarTitle": "ABMVIZ",
+  "NavbarTitle": "Transportation Planning",
   "LinkURL": "http://www.atlantaregional.com",
   "CenterMap": [
     33.754525,
@@ -12,18 +12,32 @@
   ],
   "FrontPageTitle": "Atlanta Regional Commission",
   "FrontPageGraphic": "arc_logo.png",
+  "SideBarTextLeft": "",
+  "SideBarTextRight": "",
+  "SideBarLogo": "",
+  "SideBarImage":"",
   "scenarios": {
     "BS10": {
       "title":"- Base year 2010",
+      "label":"Travel Model for Base Year 2010",
       "ScenarioFocus": "transit.json",
       "visualizations": {
-        "Sunburst": [{"name":"Sunburst","config":"Default","file":"TreeMapData.csv"}],
+        "GroupedCharts": [
+          {"name":"GroupedCharts","config":"Default", "file":"BarChartData.csv","info":"This Barchart shows Day patterns by Person Groupings",
+            "datafilecolumns":{"PERSON GROUP":"Groups based on status","DAY PATTERN":"Can be Home, Mandatory and Non-Mandatory","Count":"Count of people","CHART":"Which grouped chart they belong too"}},
+          {"name":"GroupedCharts2","config":"Default", "file":"BarChartData2.csv"}],
+        "Sunburst": [{"name":"Sunburst","config":"Default","file":"TreeMapData.csv","info":"This is a sunburst chart"}],
         "3DMap": [{"name":"ThreeDMap","config":"Default","file":"3DAnimatedMapData.csv"}],
-        "GroupedCharts": [{"name":"GroupedCharts","config":"Default", "file":"BarChartData.csv"},{"name":"GroupedCharts2","config":"Default", "file":"BarChartData2.csv"}],
-        "TimeUse": [{"name":"TimeUse","config":"Default","file":"TimeUseData.csv"}],
+        "TimeUse": [{"name":"TimeUse","config":"Default","file":"TimeUseData.csv",
+          "datafilecolumns":{
+          "PERSON_TYPE": "Person classification",
+          "PER": "Period",
+          "ORIG_PURPOSE":"Purpose for the trip",
+          "QUANTITY": "Number of trips for specific purpose and person classification"}
+        }],
         "RadarCharts": [{"name":"Radar","config":"Default","file":"RadarChartsData.csv"}],
         "BarMap": [{"name":"BarChart","config":"Default", "file":"BarChartAndMapData.csv"}],
-        "Chord": [{"name":"FeatBarChart","config":"Default", "file":"DesireLines.csv"}],
+        "Chord": [{"name":"Transit OD Chart","config":"Default", "file":"DesireLines.csv","info":"This chart shows desire lines and super districts"}],
         "POIMap": [{"name":"My POI","config":"Default","file":"TransitStops.csv"}]
       }
     },
