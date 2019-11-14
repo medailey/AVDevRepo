@@ -24,8 +24,8 @@
       "visualizations": {
         "GroupedCharts": [
           {"name":"GroupedCharts","config":"Default", "file":"BarChartData.csv","info":"This Barchart shows Day patterns by Person Groupings",
-            "datafilecolumns":{"PERSON GROUP":"Groups based on status","DAY PATTERN":"Can be Home, Mandatory and Non-Mandatory","Count":"Count of people","CHART":"Which grouped chart they belong too"}},
-          {"name":"GroupedCharts2","config":"Default", "file":"BarChartData2.csv"}],
+            "datafilecolumns":{"PERSON GROUP":"Groups based on status","DAY PATTERN":"Can be Home, Mandatory and Non-Mandatory","Count":"Count of people","CHART":"Which grouped chart they belong too"}}
+         ],
         "Sunburst": [{"name":"Sunburst","config":"Default","file":"TreeMapData.csv","info":"This is a sunburst chart"}],
         "3DMap": [{"name":"ThreeDMap","config":"Default","file":"3DAnimatedMapData.csv"}],
         "TimeUse": [{"name":"TimeUse","config":"Default","file":"TimeUseData.csv",

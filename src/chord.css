@@ -9,7 +9,8 @@
         fill-opacity: .7;
         stroke-width: .25px;
       }
-      [selector$="chordcircle"]:hover path.faded {
+
+      [selector$="chordcircle"].hover path.faded {
         display: none;
       }
 
@@ -20,7 +21,7 @@
 .chordLegend circle, .chordLegend text {
     cursor: pointer;
 }
-[selector$="chordtooltip"] {
+.chord-tooltip {
         color: white;
         opacity: .9;
         background: #333;
