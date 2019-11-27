@@ -1,0 +1,23 @@
+Person Group,Day Pattern,Count,CHART
+Child too young for school,Home,106386,Day Pattern
+Child too young for school,Mandatory,187536,Day Pattern
+Child too young for school,Non-Mandatory,159724,Day Pattern
+Full-time worker,Home,299916,Day Pattern
+Full-time worker,Mandatory,1699513,Day Pattern
+Full-time worker,Non-Mandatory,300414,Day Pattern
+Non-worker,Home,231592,Day Pattern
+Non-worker,Non-Mandatory,394286,Day Pattern
+Part-time worker,Home,65001,Day Pattern
+Part-time worker,Mandatory,260878,Day Pattern
+Part-time worker,Non-Mandatory,152526,Day Pattern
+Retired,Home,217402,Day Pattern
+Retired,Non-Mandatory,238653,Day Pattern
+Student of driving age,Home,19919,Day Pattern
+Student of driving age,Mandatory,164479,Day Pattern
+Student of driving age,Non-Mandatory,15486,Day Pattern
+Student of non-driving age,Home,58350,Day Pattern
+Student of non-driving age,Mandatory,660218,Day Pattern
+Student of non-driving age,Non-Mandatory,63441,Day Pattern
+University student,Home,38414,Day Pattern
+University student,Mandatory,126984,Day Pattern
+University student,Non-Mandatory,47992,Day Pattern

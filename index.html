@@ -7,6 +7,7 @@
 	<script src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="bower_components/d3/d3.min.js"></script>
+	<link rel="stylesheet" href="bower_components/font-awesome/css/all.min.css" />
 	<script type="text/javascript">
 		var sideBarStuff = {};
 		$.getJSON( "config.json", function (data) {
@@ -53,12 +54,17 @@
                                     if ('SideBarTextRight' in reg) {
                                         $('#sidebarinforight P').html(reg.SideBarTextRight);
                                     }
-                                    if ('SideBarLogo' in reg) {
+                                    if ('SideBarLogo' in reg && reg.SideBarLogo !="") {
                                         $('#sidebarhead img').attr('src',dataLocation + "img/"+reg.SideBarLogo);
-                                    }
-                                    if ('SideBarImage' in reg) {
+                                    } else {
+                                         $('#sidebarhead img').remove();
+                                         $('#sidebarhead').css("min-height","125px");
+									}
+                                    if ('SideBarImage' in reg && reg.SideBarImage !="") {
                                         $('#sidebarimg  img').attr('src',dataLocation+"img/"+reg.SideBarImage);
-                                    }
+                                    } else {
+										$('#sidebarimg  img').remove();
+									}
 
                                 }
                                 $('#' + k + '_id').append("<h4>" + regiontitle + "<img style='max-height: 25px;margin-left:2%;'src='" + dataLocation + "img/" + reg.FrontPageGraphic + "" + "'/>" + "</h4>");
@@ -103,10 +109,28 @@
 <div id="sidebar" class="col-sm-6" style="margin-top:6em;">
 	<div class ='col-sm-12' id="sidebarhead"><img style="display:table;margin-left:auto;margin-right:auto;width:33%;margin-bottom:25px;" src=""/></div>
 	<div class ='col-sm-12' id="sidebarimg" style="display:block;"><img src="" style="display:table;margin-left:auto;margin-right:auto; margin-bottom:25px;width:75%;"/></div>
-	<div class ='col-sm-12' id="sidebarinforight"><p>
+	<div class ='col-sm-12' id="sidebarinforight"><p style="display:table;margin-left:auto;margin-right:auto; margin-bottom:25px;width:75%;">
 		</p>
 </div>
 </div>
 </body>
+<div class="footer">
+    <div class="container" display="inline" style="position:relative; padding:5px 0px 5px 0px">
+      <span style="color:#9D9D9D; text-align:left"><i class="far fa-copyright" aria-hidden="true"></i> RSG </span>
+      <span style="position:absolute;right:0;text-align:right"><a href="https://github.com/rsginc/ActivityViz" style="color:#9D9D9D" target="_blank"><i class="fab fa-github-alt" aria-hidden="true"></i> Source Code</a></span>
+    </div>
 
+</div>
 </html>
+<style>
+	.footer{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    max-height: 25px;
+    background-color: #222222;
+    color: white;
+    width: 100%;
+    z-index: 999999;
+}
+</style>

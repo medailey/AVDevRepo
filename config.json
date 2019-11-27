@@ -8,16 +8,16 @@
        "datalocation":  "http://localhost:63342/AVDevRepo/data/atlanta/"
     },
     "portland":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/portland/"
+       "datalocation":  "http://localhost:63342/AVDevRepo/data/portland/"
     },
     "sandiego":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/sandiego/"
+       "datalocation":  "http://localhost:63342/AVDevRepo/data/sandiego/"
     },
     "sacramento":{
        "datalocation":  "http://localhost:63342/AVDevRepo/data/sacramento/"
     },
     "nebraska":{
-       "datalocation":  "https://raw.githubusercontent.com/medailey/AVDevRepo/master/data/nebraska/"
+       "datalocation":  "http://localhost:63342/AVDevRepo/data/nebraska/"
     }
 
   }

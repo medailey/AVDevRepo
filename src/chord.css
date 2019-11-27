@@ -33,4 +33,14 @@
         visibility: hidden;
         white-space: pre-wrap;
         pointer-events: none;
+    font-size:15px;
       }
+
+.chord-tooltiptable {
+    margin-left:auto;
+    margin-right: auto;
+
+}
+html {
+    overflow-y: scroll;
+}
