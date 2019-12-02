@@ -99,9 +99,23 @@ var ThreeDMap = {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
                 if (data["scenarios"][scenario].visualizations != undefined) {
-                    if (data["scenarios"][scenario].visualizations["3DMap"][0].file) {
-                        fileName = data["scenarios"][scenario].visualizations["3DMap"][0].file;
+                    if (data["scenarios"][scenario].visualizations["3DMap"][indx].file) {
+                        fileName = data["scenarios"][scenario].visualizations["3DMap"][indx].file;
 
+                    }
+                    if (data["scenarios"][scenario].visualizations["3DMap"][indx].info) {
+                        var infoBox;
+                        infoBox = data["scenarios"][scenario].visualizations["3DMap"][indx].info;
+                        $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                        $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+
+
+                    }
+                    if (data["scenarios"][scenario].visualizations["3DMap"][indx].datafilecolumns) {
+                        var datacols = data["scenarios"][scenario].visualizations["3DMap"][indx].datafilecolumns;
+                        $.each(datacols, function (key, value) {
+                            $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                        })
                     }
                 }
                 url += "/" + fileName;
@@ -199,6 +213,26 @@ var ThreeDMap = {
                     $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the 3D Map data.</span></h3></div>");
                     return;
                 }
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                 //setDataSpecificDOM();
                 data = null; //allow memory to be GC'ed
                 var allData = [];

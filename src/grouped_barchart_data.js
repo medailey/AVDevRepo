@@ -22,7 +22,7 @@ function barchart(id,indx) {
 	var dataLocation = localStorage.getItem(region);
 	var configIndx = indx;
 	var chartSelector = "#"+id+"_grouped-barchart";
-    var showChartOnPage = true;
+    var showChartOnPage = $('#'+id+'-container').children().length==0;
     var fileName = "BarChartData.csv";
     var scenario = abmviz_utilities.GetURLParameter("scenario");
     var url = dataLocation + scenario;
@@ -41,7 +41,7 @@ var chartDataContainer=[];
         if (showChartOnPage) {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
-                $.each(data, function (key, val) {
+
 
                     if (data["scenarios"][scenario].visualizations != undefined) {
                         if (data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].file) {
@@ -50,8 +50,20 @@ var chartDataContainer=[];
                         if (data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config) {
                             configName = data["scenarios"][scenario].visualizations["GroupedCharts"][configIndx].config;
                         }
+                        if (data["scenarios"][scenario].visualizations["GroupedCharts"][indx].info) {
+                            var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["GroupedCharts"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                        }
+                        if (data["scenarios"][scenario].visualizations["GroupedCharts"][indx].datafilecolumns) {
+                            var datacols = data["scenarios"][scenario].visualizations["GroupedCharts"][indx].datafilecolumns;
+                            $.each(datacols, function (key, value) {
+                                $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                            })
+                        }
                     }
-                });
+
                 var configSettings = data["GroupedCharts"][configName];
 
 
@@ -122,7 +134,28 @@ var chartDataContainer=[];
                     //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
                     var headers = d3.keys(data[0]);
                     var numCharts = headers.slice()
-                    chartData = data;
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                chartData = data;
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
                     mainGroupColumn = headers[0];
                     subGroupColumn = headers[1];
                     chartColumn = headers[3];
@@ -259,9 +292,13 @@ var chartDataContainer=[];
 
 
                     readInDataCallback();
-                });
+                })
+
+
             });
             //end d3.csv
+        } else {
+            return;
         }
 
         function readInDataCallback() {

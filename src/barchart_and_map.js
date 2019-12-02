@@ -61,6 +61,7 @@ var BarChartMap = {
     var zoneDataLayer;
     var countyLayer;
     var focusLayer;
+    var controlLayer;
     var barsWrap;
     var barsWrapRect;
     var barsWrapRectHeight;
@@ -89,7 +90,7 @@ var BarChartMap = {
     var highlightLayer;
     var maxLabelLength = 0;
     var buildChart = $('#'+id+'-chart').children().length ==0;
-    $("#scenario-header").html("Scenario " + scenario);
+
 
     //start off chain of initialization by reading in the data
     function readInDataCallback() {
@@ -112,7 +113,6 @@ var BarChartMap = {
         })
     });
 
-
     function getConfigSettings(callback) {
         if (buildChart ) {
             $.getJSON(dataLocation + "region.json", function (data) {
@@ -124,6 +124,18 @@ var BarChartMap = {
                     }
                     if (data["scenarios"][scenario].visualizations["BarMap"][indx].config) {
                         configName = data["scenarios"][scenario].visualizations["BarMap"][indx].config;
+                    }
+                        if(data["scenarios"][scenario].visualizations["BarMap"][indx].info){
+                        var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["BarMap"][indx].info;
+                        $('#'+id+'-div span.glyphicon-info-sign').attr("title",infoBox);
+                        $('#'+id+'-div [data-toggle="tooltip"]').tooltip();
+                    }
+                    if (data["scenarios"][scenario].visualizations["BarMap"][indx].datafilecolumns) {
+                        var datacols = data["scenarios"][scenario].visualizations["BarMap"][indx].datafilecolumns;
+                        $.each(datacols, function (key, value) {
+                            $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                        })
                     }
                 }
                 //GO THROUGH region level configuration settings
@@ -149,11 +161,9 @@ var BarChartMap = {
                     if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
                         SCENARIO_FOCUS = true;
                         scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
-                        $('#' + id + '-tools').prepend(" Focus Color: <input type='text' id='" + id + "-focus-color' style='display: none;' >  ");
+                        $('#' + id + '-tools').prepend(" Focus: <input type='text' id='" + id + "-focus-color' style='display: none;' >  ");
                     }
                 }
-
-
                 var configSettings = data["BarMap"][configName];
                 if (configSettings != undefined) {
                     $.each(configSettings, function (opt, value) {
@@ -201,8 +211,9 @@ var BarChartMap = {
         }
         if (scenarioPolyFile != undefined) {
             focusLayer.setStyle(styleFocusGeoJSONLayer);
+            focusLayer.bringToBack();
         }
-        if (bubblesShowing) {
+        if (map.hasLayer(circlesLayerGroup)) {
             updateBubbleSize();
         }
     }
@@ -254,6 +265,26 @@ var BarChartMap = {
             if (countyColumn == undefined) {
                 $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the Barchart and Map data.</span></h3></div>");
                 return;
+            }
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                     dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
             }
             modeColumn = headers[2];
             quantityColumn = headers[3];
@@ -650,8 +681,18 @@ var BarChartMap = {
         if (map != undefined) {
             return;
         }
+        var tonerLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', { id:id + "-by-district-map.toner",
+                updateWhenIdle: true,
+                unloadInvisibleFiles: true,
+                reuseTiles: true,
+                opacity: 1.0
+            });
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {id:id + "-by-district-map.aerial",
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
         map = L.map(id + "-map", {
-            minZoom: 7
+            minZoom: 7,
+            layers:[tonerLayer]
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
         map.on('zoomend', function (type, target) {
@@ -659,6 +700,7 @@ var BarChartMap = {
             var zoomScale = map.getZoomScale();
             console.log('zoomLevel: ', zoomLevel, ' zoomScale: ', zoomScale);
         });
+
         $.getJSON(dataLocation + ZONE_FILE_LOC, function (zoneTiles) {
             "use strict";
             //there should be at least as many zones as the number we have data for.
@@ -706,13 +748,7 @@ var BarChartMap = {
 
             //var stamenTileLayer = new L.StamenTileLayer("toner-lite"); //B&W stylized background map
             //map.addLayer(stamenTileLayer);
-            var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-                updateWhenIdle: true,
-                unloadInvisibleFiles: true,
-                reuseTiles: true,
-                opacity: 1.0
-            });
-            underlyingMapLayer.addTo(map);
+
             $.getJSON(dataLocation + COUNTY_FILE, function (countyTiles) {
                 "use strict";
                 console.log(COUNTY_FILE + " success");
@@ -730,15 +766,18 @@ var BarChartMap = {
                     opacity: 1.0,
                     style: styleCountyGeoJSONLayer,
                     onEachFeature: onEachCounty
-                });
+                })
+
+
 
                 var allCountyBounds = countyLayer.getBounds();
                 console.log(allCountyBounds);
                 if (!SCENARIO_FOCUS && countyLayer.getBounds().isValid())
                     map.fitBounds(allCountyBounds);
-
+                updateBubbleColor();
+                updateBubbleSize();
                 zoneDataLayer.addTo(map);
-                countyLayer.addTo(map);
+               countyLayer.addTo(map);
                 highlightLayer.addTo(map);
             }).success(function () {
                 console.log(COUNTY_FILE + " second success");
@@ -747,6 +786,9 @@ var BarChartMap = {
                 console.log(COUNTY_FILE + " errorThrown" + errorThrown);
                 console.log(COUNTY_FILE + " responseText (incoming?)" + jqXHR.responseText);
             }).complete(function () {
+                controlLayer.addOverlay(countyLayer,"Counties");
+                 controlLayer.addOverlay(zoneDataLayer,"Zones");
+                 controlLayer.addOverlay(circlesLayerGroup,"Bubbles");
                 console.log(COUNTY_FILE + " complete");
             });
 
@@ -774,8 +816,18 @@ var BarChartMap = {
                     style: styleFocusGeoJSONLayer
                 });
                 focusLayer.addTo(map);
+            }).complete(function(d){
+
+               controlLayer.addOverlay(focusLayer,"Focus");
             });
         }		//end geoJson of zone layer
+        var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        };
+
+        controlLayer= L.control.layers(baseMaps).addTo(map);
     }; //end createMap
 
 
@@ -836,12 +888,14 @@ var BarChartMap = {
             }
             extNvd3Chart.update();
         });
-
+         $("#" + id + "-stroke").click(function () {
+            updateOutline();
+         });
         $("#" + id + "-zones").click(function () {
-            updateMapUI();
+           // updateMapUI();
         });
         $("#" + id + "-bubbles").click(function () {
-            updateMapUI();
+            //updateMapUI();
         });
 
         function updateMapUI() {
@@ -856,15 +910,15 @@ var BarChartMap = {
             if (bubblesShowing) {
                 updateBubbleColor();
                 updateBubbleSize();
-                circlesLayerGroup.addTo(map);
+                //circlesLayerGroup.addTo(map);
 
             } else {
-                circlesLayerGroup.removeFrom(map);
+               // circlesLayerGroup.removeFrom(map);
             }
             if (zonesShowing) {
-                zoneDataLayer.addTo(map);
+              //  zoneDataLayer.addTo(map);
             } else {
-                zoneDataLayer.removeFrom(map);
+                //zoneDataLayer.removeFrom(map);
             }
         }
 

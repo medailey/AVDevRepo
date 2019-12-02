@@ -14,24 +14,27 @@ function pointofinterest_and_map (id,indx) {
     var chartData = null;
     var region = abmviz_utilities.GetURLParameter("region");
 	var dataLocation = localStorage.getItem(region);
-    var url = dataLocation+ abmviz_utilities.GetURLParameter("scenario")
+    var url = dataLocation+ abmviz_utilities.GetURLParameter("scenario");
     var fileName = "PointofInterest.csv";
     var chartSelector = "#"+id+"-chart";
     var svgChart;
     var showChartOnPage = true;
     var CENTER_LOC = [];
     var SCENARIO_FOCUS = false;
+    var focusColor = "black";
     var ROTATELABEL = 0;
     var BARSPACING = 0.2;
     var showCycleTools = true;
     var highlightLayer;
     var highlightBoxes;
-    var showChartOnPage = true;
+    var showChartOnPage = $('#'+id+'-chart').children().length==0;
     var pointNameCol;
     var maxFeature;
     var circleMarkers;
     var groupColumn;
     var selectedGroup;
+    var scenarioPolyFile;
+    var highlightLayer;
     var selectedDataGrp;
     var palette = [["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", "rgb(204, 204, 204)", "rgb(217, 217, 217)", "rgb(255, 255, 255)"], ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)", "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"], ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)", "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)", "rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)", "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)", "rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)", "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)", "rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)", "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)", "rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)", "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"]];
     var latColumn;
@@ -43,6 +46,7 @@ function pointofinterest_and_map (id,indx) {
     var bubbleColor = 'rgba(255, 120, 0, 0.5)';
     var pointColor = '#ff7800';
     var groupsSet;
+    var focusLayer;
     var groupArry = [];
     var extNvd3Chart;
     var enabledGroups;
@@ -69,7 +73,8 @@ function pointofinterest_and_map (id,indx) {
     var maxLabelLength = 0;
     var paletteRamps = d3.selectAll("#"+id+" .ramp");
     var pointsAll = [];
-    $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+    var controlLayer;
+
 
     //start off chain of initialization by reading in the data
     function readInDataCallback() {
@@ -93,7 +98,6 @@ function pointofinterest_and_map (id,indx) {
         if (showChartOnPage) {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
-                $.each(data, function (key, val) {
 
                     if (data["scenarios"][scenario].visualizations != undefined) {
                         if (data["scenarios"][scenario].visualizations["POIMap"][indx].file) {
@@ -102,14 +106,32 @@ function pointofinterest_and_map (id,indx) {
                         if (data["scenarios"][scenario].visualizations["POIMap"][indx].config) {
                             configName = data["scenarios"][scenario].visualizations["POIMap"][indx].config;
                         }
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].info) {
+                            var infoBox;
+                            infoBox = data["scenarios"][scenario].visualizations["POIMap"][indx].info;
+                            $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                            $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                        }
+                        if (data["scenarios"][scenario].visualizations["POIMap"][indx].datafilecolumns) {
+                            var datacols = data["scenarios"][scenario].visualizations["POIMap"][indx].datafilecolumns;
+                            $.each(datacols, function (key, value) {
+                                $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                            })
+                        }
                     }
-                });
+
                 var configSettings = data["POIMap"][configName];
+                //go through region level settings
                 $.each(data, function (key, val) {
                     if (key == "CenterMap")
                         CENTER_LOC = val;
                 });
-
+                //go through scenario config level settings
+                if (data["scenarios"][scenario]["ScenarioFocus"] != undefined) {
+                        SCENARIO_FOCUS = true;
+                        scenarioPolyFile = data["scenarios"][scenario]["ScenarioFocus"];
+                        $('#' + id + '-tooltable tbody tr').append("<td>Focus: <input type='text' id='" + id + "-focus-color' style='display: none;' > </td> ");
+                    }
 
                 $.each(configSettings, function (opt, value) {
                     if (opt == "RotateLabels") {
@@ -119,12 +141,11 @@ function pointofinterest_and_map (id,indx) {
                         BARSPACING = value;
                     }
                     if (opt == "LegendTitle") {
-                        $('.legendtitle').html(value);
+                        $('#'+id+'-div .legendtitle').html(value);
                     }
                     if (opt == "CenterMap") {
                         CENTER_LOC = value;
                     }
-
                 })
 
             }).complete(function(){
@@ -133,9 +154,7 @@ function pointofinterest_and_map (id,indx) {
             }
                 callback();
             });
-
-            }
-
+            } else { return;}
     }
 
     function createEmptyChart() {
@@ -149,9 +168,7 @@ function pointofinterest_and_map (id,indx) {
                 } else {
                     nvd3Chart = nv.models.multiBarHorizontalChart();
                 }
-
                 //console.log('chartGenerator being called. nvd3Chart set to:' + nvd3Chart);
-
                 nvd3Chart.x(function (d, i) {
                     return d.label;
                 }).y(function (d) {
@@ -226,6 +243,27 @@ function pointofinterest_and_map (id,indx) {
             }
 
             var headers = d3.keys(data[0]);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
             pointNameCol = headers[0];
             filterColumn = headers[1];
             latColumn = headers[2];
@@ -347,6 +385,7 @@ function pointofinterest_and_map (id,indx) {
         });
         $('#'+id+'-groups-current').change(function () {
             selectedGroup = $('#'+id+'-groups-current').val();
+             d3.selectAll("#"+id+"-div .poi-by-group-type").html($("#"+id+"-values-current").val());
             redrawMap();
 
         });
@@ -354,11 +393,21 @@ function pointofinterest_and_map (id,indx) {
 
     function createMap(callback) {
 
-        if (map != undefined) {
+        if (map !== undefined) {
             return;
         }
+        var tonerLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', { id:id + "-by-district-map.toner",
+                updateWhenIdle: true,
+                unloadInvisibleFiles: true,
+                reuseTiles: true,
+                opacity: 1.0
+            });
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {id:id + "-by-district-map.aerial",
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
         map = L.map(id+"-map", {
-            minZoom: 7
+            minZoom: 7,
+            layers:[tonerLayer]
         }).setView(CENTER_LOC, 9);
         //centered at Atlanta
         map.on('zoomend', function (type, target) {
@@ -368,15 +417,36 @@ function pointofinterest_and_map (id,indx) {
         });
         console.log("create map poi");
 
-        var underlyingMapLayer = L.tileLayer('//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-            updateWhenIdle: true,
-            unloadInvisibleFiles: true,
-            reuseTiles: true,
-            opacity: 1.0
-        });
-        underlyingMapLayer.addTo(map);
+ var baseMaps = {
+            "Grayscale": tonerLayer,
+            "Aerial": Esri_WorldImagery
+
+        }
+        controlLayer = L.control.layers(baseMaps).addTo(map);
+
+         if (scenarioPolyFile != undefined) {
+            $.getJSON(dataLocation + scenario + "/" + scenarioPolyFile, function (scenarioTiles) {
+                "use strict";
+
+                focusLayer = L.geoJSON(scenarioTiles, {
+                    style: styleFocusGeoJSONLayer
+                });
+                focusLayer.addTo(map);
+            }).complete(function(){
+                controlLayer.addOverlay(focusLayer,"Focus");
+            });
+        }
         redrawMap();
 
+    }
+    function styleFocusGeoJSONLayer(feature) {
+        var returnStyle = {
+            //all SVG styles allowed
+            stroke: true,
+            weight: 5,
+            color: focusColor
+        };
+        return (returnStyle);
     }
 
     function redrawMap() {
@@ -425,11 +495,21 @@ function pointofinterest_and_map (id,indx) {
                     var color = $('#'+id+'-chart text:contains("'+currentGrp+'")').siblings("circle")[0].style.fill;
                     var name = e.target.properties.NAME;
                     var value = e.target.myData;
+                    //remove the tooltip and then recreate template tooltip because we are trying to mimic the barchart tooltip
+                    $('div.nvtooltip table').remove();
+                    if($('div.nvtooltip table').length ==0){
+                        $('div.nvtooltip ').append('<table><thead><tr><td colspan="3"><strong class="x-value"></strong></td></tr></thead><tbody><tr><td class="legend-color-guide"><div style="background-color: rgb(255, 187, 120);"></div></td><td class="key"></td><td class="value"></td></tr></tbody></table>');
+                    }
                     $('div.nvtooltip strong.x-value').text(name);
                     $('div.nvtooltip td.key').text($('#'+id+'-groups-current').val());
                     $('div.nvtooltip td.value').text(value.toLocaleString());
                     $('div.nvtooltip').css('opacity',1);
-                    $('div.nvtooltip').css('transform',"translate(430px,430px)");
+                     var element = $('g.tick text:contains("'+name+'")')[0];
+                     var bodyRect = document.body.getBoundingClientRect(),
+                    elemRect = element.getBoundingClientRect(),
+                    offset   = elemRect.top - bodyRect.top;
+                     //console.log(elemRect); console.log(offset);
+                    $('div.nvtooltip').css('transform',"translate("+elemRect.x+"px,"+elemRect.y+"px)");
                     $('div.nvtooltip td.legend-color-guide div').css('background-color',color);
                     this.openPopup();
                 });
@@ -441,7 +521,7 @@ function pointofinterest_and_map (id,indx) {
                 circleMarker.pointFilter = poiData[d].pointfilter;
                 circleMarker.properties = {};
                 circleMarker.properties["NAME"] = d;
-                circleMarkers.push(circleMarker);
+               // circleMarkers.push(circleMarker);
 
                 var checkedfilters = $('#'+id+'-filters').val();
                 var showThis = false;
@@ -477,6 +557,10 @@ function pointofinterest_and_map (id,indx) {
         } else {
             map.addLayer(highlightLayer);
         }
+        if(focusLayer!=undefined){
+            focusLayer.bringToBack();
+            focusLayer.setStyle(styleFocusGeoJSONLayer);
+        }
     }
 
     function ColorLuminance(hex, lum) {
@@ -510,6 +594,24 @@ function pointofinterest_and_map (id,indx) {
             }
             extNvd3Chart.update();
         });
+                $("#" + id + "-focus-color").spectrum({
+            color: focusColor,
+            showInput: true,
+            className: "full-spectrum",
+            showInitial: false,
+            showPalette: true,
+            showAlpha: true,
+            showSelectionPalette: true,
+            maxSelectionSize: 10,
+            preferredFormat: "hex",
+            localStorageKey: "spectrum.demo",
+            palette: palette,
+            change: function (color) {
+                focusColor = color;
+                redrawMap();
+
+            }
+        });
         if(bubblesShowing){
             updateMapUI();
         }
@@ -517,7 +619,6 @@ function pointofinterest_and_map (id,indx) {
 
         function updateMapUI() {
            // bubblesShowing = $("#poi-by-group-bubbles").is(":checked");
-
             console.log('updateBubbles: bubblesShowing=' + bubblesShowing);
             console.log('$("#'+id+'-bubble-size").prop("disabled"): ' + $("#"+id+"-bubble-size").prop("disabled"));
             $("#"+id+"-bubble-color").spectrum(bubblesShowing ? "enable" : "disable", true);
@@ -529,7 +630,6 @@ function pointofinterest_and_map (id,indx) {
                 updateBubbleSize();
                 circlesLayerGroup.addTo(map);
                 map.removeLayer(highlightLayer);
-
             } else {
                 map.addLayer(highlightLayer);
                 circlesLayerGroup.removeFrom(map);
@@ -572,13 +672,6 @@ function pointofinterest_and_map (id,indx) {
             localStorageKey: "spectrum.demo",
             clickoutFiresChange: true,
             palette: palette,
-            // 			change: function (color) {
-            // 				//BUG this gets called when user still clicking in color chooser (despite docs) See
-            // 				//https://github.com/bgrins/spectrum/issues/289
-            // 				console.log("bubble-color spectrum change called with color:" + color);
-            // 				bubbleColor = color;
-            // 				updateBubbleColor();
-            // 			},
             hide: function (color) {
                 if (color != bubbleColor) {
                     bubbleColor = color;
@@ -687,6 +780,7 @@ function pointofinterest_and_map (id,indx) {
                     dataSeries.push(d.value);
                 }
             });
+            });
             var serie = new geostats(dataSeries);
             maxFeature = serie.max();
             var scaleSqrt = d3.scale.sqrt().domain([0, maxFeature]).range([0, maxBubbleSize]);
@@ -698,7 +792,7 @@ function pointofinterest_and_map (id,indx) {
 
                 circleMarker.setRadius(sqrtRadius);
             });
-        });
+
     }
 
     function updateChartNVD3(callback) {

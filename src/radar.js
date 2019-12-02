@@ -26,7 +26,7 @@ var RadarData = {
            if (showChartOnPage) {
                $.getJSON(dataLocation + "region.json", function (data) {
                    var configName = "Default";
-                   $.each(data, function (key, val) {
+
                        if (data["scenarios"][scenario].visualizations != undefined) {
                            if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].file) {
                                fileName = data["scenarios"][scenario].visualizations["RadarCharts"][indx].file;
@@ -34,8 +34,20 @@ var RadarData = {
                            if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].config) {
                                configName = data["scenarios"][scenario].visualizations["RadarCharts"][indx].config;
                            }
+                           if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].info) {
+                               var infoBox;
+                               infoBox = data["scenarios"][scenario].visualizations["RadarCharts"][indx].info;
+                               $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                               $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                           }
+                           if (data["scenarios"][scenario].visualizations["RadarCharts"][indx].datafilecolumns) {
+                               var datacols = data["scenarios"][scenario].visualizations["RadarCharts"][indx].datafilecolumns;
+                               $.each(datacols, function (key, value) {
+                                   $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                               })
+                           }
                        }
-                   });
+
                    var configSettings = data["RadarCharts"][configName];
                    if (configSettings != undefined) {
                        $.each(configSettings, function (opt, value) {
@@ -65,6 +77,26 @@ var RadarData = {
                            var csv = d3.csv.parseRows(data).slice(1);
                            var headers = d3.csv.parseRows(data)[0];
                            var legendHead = headers.slice(2, headers.len);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                            if (legendHead.length == 0) {
                                $('#' + id + '-div').html("<div class='container'><h3><span class='alert alert-danger'>Error: An error occurred while loading the radar data.</span></h3></div>");
                                return;

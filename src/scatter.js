@@ -9,7 +9,7 @@ function scatter(id,indx) {
     var url = dataLocation + abmviz_utilities.GetURLParameter("scenario");
     var showChartOnPage = true;
     var fileName = "Scatter.csv";
-    $("#scenario-header").html("Scenario " + abmviz_utilities.GetURLParameter("scenario"));
+
     var xAxisColumn;
     var yAxisColumn;
     var sizeColumn;
@@ -31,14 +31,27 @@ function scatter(id,indx) {
         if (showChartOnPage) {
             $.getJSON(dataLocation + "region.json", function (data) {
                 var configName = "Default";
-                $.each(data, function (key, val) {
 
-                    if (data["scenarios"][scenario].visualizations != undefined) {
-                        if (data["scenarios"][scenario].visualizations["Scatter"][indx].file) {
-                            fileName = data["scenarios"][scenario].visualizations["Scatter"][indx].file;
-                        }
+
+                if (data["scenarios"][scenario].visualizations != undefined) {
+                    if (data["scenarios"][scenario].visualizations["Scatter"][indx].file) {
+                        fileName = data["scenarios"][scenario].visualizations["Scatter"][indx].file;
                     }
-                });
+                    if (data["scenarios"][scenario].visualizations["Scatter"][indx].info) {
+                        var infoBox;
+                        infoBox = data["scenarios"][scenario].visualizations["Scatter"][indx].info;
+                        $('#' + id + '-div span.glyphicon-info-sign').attr("title", infoBox);
+                        $('#' + id + '-div [data-toggle="tooltip"]').tooltip();
+                    }
+                    if (data["scenarios"][scenario].visualizations["Scatter"][indx].datafilecolumns) {
+                        var datacols = data["scenarios"][scenario].visualizations["Scatter"][indx].datafilecolumns;
+                        $.each(datacols, function (key, value) {
+                            $('#' + id + '-datatable-columns').append("<p>" + key + ": " + value + "</p>");
+                        })
+                    }
+
+                }
+
                 var configSettings = data["Scatter"][configName];
 
                 $.each(configSettings, function (opt, value) {
@@ -67,6 +80,26 @@ function scatter(id,indx) {
 
             //expected data should have columns similar to: ZONE,COUNTY,TRIP_MODE_NAME,QUANTITY
             var headers = d3.keys(data[0]);
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({data: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
+
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: data,
+                    columns: columnsDT
+                });
+            }
             labelColumn = headers[0];
             xAxisColumn = headers[1];
             yAxisColumn = headers[2];

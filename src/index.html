@@ -8,6 +8,7 @@
 	<script defer src="../bower_components/spectrum/spectrum.js"></script>
 	<script  src="../bower_components/chosen/chosen.jquery.js"></script>
 	<script  defer src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script  defer src="../bower_components/datatables/datatables.min.js"></script>
 	<script  src="../bower_components/d3/d3.js"></script>
     <script  src="../bower_components/d3/d3-tip.js"></script>
 
@@ -17,6 +18,7 @@
 	<script  src="../bower_components/geostats/lib/geostats.js"></script>
 	<script  type="text/javascript" src="https://stamen-maps.a.ssl.fastly.net/js/tile.stamen.js"></script>
 	<script  src="../vendor/leaflet/leaflet-src.js"></script>
+	<script  src="../vendor/leaflet/leaflet.groupedlayercontrol.min.js"></script>
 	<script  src="../vendor/three.min.js"></script>
 	<script  src="../vendor/TweenMax.min.js"></script>
 	<script  src="../vendor/vizicities.js"></script>
@@ -31,14 +33,15 @@
 	<script  type="text/javascript" src="points_of_interest_map.js"></script>
     <script  type="text/javascript" src="radar.js"></script>
     <script  type="text/javascript" src="three3d.js "></script>
-    <script  type="text/javascript" src="featurebarmap.js"></script>
+
 	<script defer type="text/javascript" src="mapper.js"></script>
 
 	<script type="text/javascript" src="grouped_barchart_data.js"></script>
-
+	<script  type="text/javascript" src="chord_chart.js"></script>
 	<script  type="text/javascript" src="radar-chart-nbremer.js"></script>
 
 	<link rel="shortcut icon" href="">
+	<link rel="stylesheet" href="../bower_components/datatables/datatables.min.css" />
 	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap-multiselect.css"/>
 	<link rel="stylesheet" href="../bower_components/spectrum/spectrum.css" />
@@ -46,6 +49,8 @@
 	<link rel="stylesheet" href="../bower_components/chosen/chosen.css" />
 	<link rel="stylesheet" href="../bower_components/nvd3/build/nv.d3.min.css" />
 	<link rel="stylesheet" href="../bower_components/geostats/lib/geostats.css" />
+    <link rel="stylesheet" href="../bower_components/font-awesome/css/all.min.css" />
+		<link rel="stylesheet" href="../vendor/leaflet/leaflet.groupedlayercontrol.min.css" />
 	<link rel="stylesheet" href="../vendor/leaflet/leaflet.css" />
 	<link rel="stylesheet" href="../vendor/vizicities.css" />
 	<link rel="stylesheet" href="style.css" />
@@ -98,7 +103,13 @@
 
 </body>
 <!-- end body -->
+<div class="footer">
+    <div class="container" display="inline" style="position:relative; padding:5px 0px 5px 0px">
+      <span style="color:#9D9D9D; text-align:left"><i class="far fa-copyright" aria-hidden="true"></i> RSG </span>
+      <span style="position:absolute;right:0;text-align:right"><a href="https://github.com/rsginc/ActivityViz" style="color:#9D9D9D" target="_blank"><i class="fab fa-github-alt" aria-hidden="true"></i> Source Code</a></span>
+    </div>
 
+</div>
 </html>
 
 
@@ -106,8 +117,8 @@
 <script type="text/javascript">
 $(document).ready(function () {
   var shownTabs = $('li[role="presentation"]').children(":visible");
-		if(shownTabs.length>0)
-		    shownTabs[0].click();
+		if(shownTabs.length>0){}
+		    //shownTabs[0].click();
     });
 </script>
 
@@ -130,7 +141,11 @@ $(document).ready(function () {
 		$('#title_id').text(navbartitle);
 		$('#navbarlink').attr("href", linkURL);
 		$('#logo_id').attr("src", dataLocation + "img/" + logo + "");
-
+		 var label = abmviz_utilities.GetURLParameter("scenario");
+		if('label' in data["scenarios"][scenario]){
+			label = data["scenarios"][scenario].label;
+		}
+ 		$("#scenario-header").html("Scenario " + label);
 		$.each(data.colorRamps, function (key, value) {
 			if (value == false)
 				$('.' + [key]).remove();
@@ -151,6 +166,12 @@ $(document).ready(function () {
                             $('#grouped-barchart-toggle-stacked').attr('id', chartname + '-toggle-stacked');
                             $('#grouped-barmain').attr('id', chartname + '-barmain');
                             $('#grouped-bar-container').attr('id', chartname + '-container');
+                             $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -166,6 +187,12 @@ $(document).ready(function () {
                             $('#timeuse-legend').attr('id', chartname + '-legend');
                             $('#timeuse-main').attr('id', chartname + '-main');
                             $('#timeuse-chart').attr('id', chartname + '-chart');
+                            $('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -183,6 +210,12 @@ $(document).ready(function () {
                             $('#sunburst-percentage').attr('id', chartname + '-percentage');
                             $('#sunburst-current-node').attr('id', chartname + '-current-node');
                             $('#sunburst-current-node-value').attr('id', chartname + '-current-node-value');
+                             $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -196,6 +229,12 @@ $(document).ready(function () {
                             $('#scatter-tooltip').attr('id', chartname + '-tooltip');
                             $('#scatter-main').attr('id', chartname + '-main');
                             $('#scatter-chart-container').attr('id', chartname + '-chart-container');
+                             $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+							$('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -212,6 +251,12 @@ $(document).ready(function () {
                             $('#chord-chart-container').attr('id', chartname + '-chart-container');
                             $('#chord-chart-map').attr('id', chartname + '-chart-map');
                             $('#chord-by-district-map').attr('id', chartname + '-by-district-map');
+							$('#datatable-div').attr('id', chartname + '-datatable-div');
+                             $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+							$('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -233,6 +278,12 @@ $(document).ready(function () {
                             $('#poi-by-group-map').attr('id', chartname + '-map');
                             $('#poi-by-group-pallette').attr('id', chartname + '-pallette');
                             $('#poi-by-group-filter-span').attr('id', chartname + '-filter-span');
+							$('#datatable-div').attr('id', chartname + '-datatable-div');
+ 							$('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -248,23 +299,12 @@ $(document).ready(function () {
                             $('#radar-legend').attr('id', chartname + '-legend');
                             $('#radar-main').attr('id', chartname + '-main');
                             $('#radar-chart-container').attr('id', chartname + '-chart-container');
-                            $('#' + chartname + '-div').show();
-                        });
-                    });
-                }
-                if(key == "FeatureBarMap"){
-                    $.each(value, function (k, v) {
-                        addMyTab("featurebarmap.html", "FeatureBarMap.feature_bar_map", v.name,k,'fm_'+v.name.replace(/\s/g, ""), function () {
-                            var chartname = 'fm_'+v.name.replace(/\s/g, "");
-                            $('#featurebarmap_tab').attr('id', chartname + '_id');
-                            $('#featurebarmap').attr('id', chartname + '-div');
-                            $('#featurebarmap-trip-mode').attr('id', chartname + '-trip-mode');
-                            $('#featurebarmap-area-type').attr('id', chartname + '-area-type');
-                            $('#featurebarmap-stacked').attr('id', chartname + '-stacked');
-                            $('#featurebarmap-chart').attr('id', chartname + '-chart');
-                            $('#featurebarmap-map').attr('id', chartname + '-map');
-                            $('#featurebarmap-filters').attr('id', chartname + '-filters');
-                            $('#featurebarmap-tools').attr('id', chartname + '-tools');
+                             $('#datatable-columns').attr('id', chartname + '-datatable-columns');
+							$('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -294,15 +334,20 @@ $(document).ready(function () {
                             $('#three3d-stop-cycle-map').attr('id', chartname + '-stop-cycle-map');
                             $('#three3d-redraw').attr('id', chartname + '-redraw');
                             $('#three3d-cycle-frequency').attr('id', chartname + '-cycle-frequency');
-
+ 							$('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname+'-datatable-collapse');
+                             $('#collapsebtn').attr('data-target', '#'+chartname+'-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname+'-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
                 }
-                if(key == "BarMap"){
+                if(key == "BarMap") {
                     $.each(value, function (k, v) {
-                        addMyTab("barchartmap.html", "BarChartMap.barchart_and_map", v.name,k,'bm_'+v.name.replace(/\s/g, ""), function () {
-                            var chartname = 'bm_'+v.name.replace(/\s/g, "");
+                        addMyTab("barchartmap.html", "BarChartMap.barchart_and_map", v.name, k, 'bm_' + v.name.replace(/\s/g, ""), function () {
+                            var chartname = 'bm_' + v.name.replace(/\s/g, "");
                             $('#barchartmap_tab').attr('id', chartname + '_id');
                             $('#mode-share-by-county').attr('id', chartname + '-div');
                             $('#mode-share-by-county-stacked').attr('id', chartname + '-stacked');
@@ -326,6 +371,12 @@ $(document).ready(function () {
                             $('#mode-share-by-county-start-cycle-map').attr('id', chartname + '-start-cycle-map');
                             $('#mode-share-by-county-stop-cycle-map').attr('id', chartname + '-stop-cycle-map');
                             $('#mode-share-by-county-cycle-frequency').attr('id', chartname + '-cycle-frequency');
+							$('#datatable-columns').attr('id', chartname + '-datatable-columns');
+                            $('#datatable-div').attr('id', chartname + '-datatable-div');
+                            $('#datatable-table').attr('id', chartname + '-datatable-table');
+                            $('#datatable-collapse').attr('id', chartname + '-datatable-collapse');
+                            $('#collapsebtn').attr('data-target', '#' + chartname + '-datatable-collapse');
+                            $('#collapsebtn').attr('id', chartname + '-collapsebtn');
                             $('#' + chartname + '-div').show();
                         });
                     });
@@ -333,13 +384,15 @@ $(document).ready(function () {
             });
         }
 	}).done(function() {
-        $('#the_tabs a').on('click',function (link) {
+        $('#the_tabs a').on('click', function (link) {
             eval(link.currentTarget.getAttribute("funct"))
             console.log(link.currentTarget.getAttribute("funct"));
         })
-  var shownTabs = $('li[role="presentation"] a');
-		if(shownTabs.length>0)
-		    setTimeout(function() {shownTabs[0].click()},100);
+        var shownTabs = $('li[role="presentation"] a');
+        if (shownTabs.length > 0)
+            setTimeout(function () {
+                shownTabs[0].click()
+            }, 100);
     });
 
 	function addMyTab(filename,chartype,name,indx,idname,callback) {

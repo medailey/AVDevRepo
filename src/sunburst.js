@@ -4,7 +4,9 @@ var SunburstChart = {
 sunburst:
 function sunburst(id,indx) {
 	"use strict";
-	var url = "../data/" +abmviz_utilities.GetURLParameter("region")+"/"+ abmviz_utilities.GetURLParameter("scenario") ;
+    var region = abmviz_utilities.GetURLParameter("region");
+	var dataLocation = localStorage.getItem(region);
+    var url = dataLocation + abmviz_utilities.GetURLParameter("scenario");
 	 var fileName = "TreeMapData.csv";
 	 var scenario = abmviz_utilities.GetURLParameter("scenario");
 	//var url = "../data/" + abmviz_utilities.GetURLParameter("scenario") + "/visit-sequences.csv";
@@ -21,6 +23,7 @@ function sunburst(id,indx) {
 	var originalNodeData;
 	var radius, x, y, svg, arc;
 	var showChartOnPage = true;
+	var infoBox;
 	// Dimensions of legend item: width, height, spacing, radius of rounded rect.
 	var li = {
 		w: legendBoxWidth,
@@ -48,7 +51,26 @@ function sunburst(id,indx) {
                 var maingroupColumn = headers[0];
                 var subgroupColumn = headers[1];
                 var quantityColumn = headers[2];
+            if(! $.fn.DataTable.isDataTable('#'+id+'-datatable-table')) {
+                var columnsDT = [];
+                $.each(headers, function (d, i) {
+                    columnsDT.push({title: i});
+                    $('#' + id + '-datatable-div table thead tr').append("<th>" + i + "</th>")
+                });
 
+                $('#' + id + '-datatable-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'csv',
+                            text: '<span class="glyphicon glyphicon-save"></span>',
+                            titleAttr:'Download CSV'
+                        }
+                    ],
+                    data: csv,
+                    columns: columnsDT
+                });
+            }
                 d3.selectAll(".sunburst-maingroup").html(maingroupColumn);
 
                 try {
@@ -428,8 +450,20 @@ function sunburst(id,indx) {
             if (data["scenarios"][scenario].visualizations != undefined) {
                 if (data["scenarios"][scenario].visualizations["Sunburst"][indx].file) {
                     fileName = data["scenarios"][scenario].visualizations["Sunburst"][indx].file;
+                    var infoBox;
+                    if(data["scenarios"][scenario].visualizations["Sunburst"][indx].info){
+                        infoBox = data["scenarios"][scenario].visualizations["Sunburst"][indx].info;
+                        $('#'+id+'-div span.glyphicon-info-sign').attr("title",infoBox);
+                        $('#'+id+'-div [data-toggle="tooltip"]').tooltip();
+                    }
 
                 }
+                if (data["scenarios"][scenario].visualizations["Sunburst"][indx].datafilecolumns) {
+            var datacols = data["scenarios"][scenario].visualizations["Sunburst"][indx].datafilecolumns;
+            $.each(datacols,function(key,value){
+                $('#'+id+'-datatable-columns').append("<p>"+key+": "+value+"</p>");
+            })
+        }
             }
 
         }).complete(function () {
