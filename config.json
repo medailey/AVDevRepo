@@ -2,22 +2,22 @@
   "regions":{
     "rsginc":{
 
-      "datalocation":"http://localhost:63342/AVDevRepo/data/rsginc/"
+      "datalocation":"data/rsginc/"
     },
     "atlanta":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/atlanta/"
+       "datalocation":  "data/atlanta/"
     },
     "portland":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/portland/"
+       "datalocation":  "data/portland/"
     },
     "sandiego":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/sandiego/"
+       "datalocation":  "data/sandiego/"
     },
     "sacramento":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/sacramento/"
+       "datalocation":  "data/sacramento/"
     },
     "nebraska":{
-       "datalocation":  "http://localhost:63342/AVDevRepo/data/nebraska/"
+       "datalocation":  "data/nebraska/"
     }
 
   }
